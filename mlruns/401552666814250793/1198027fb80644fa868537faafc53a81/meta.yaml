@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/1198027fb80644fa868537faafc53a81/artifacts
+deleted_time: 1743589508092
+end_time: null
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 1198027fb80644fa868537faafc53a81
+run_name: spiffy-frog-703
+run_uuid: 1198027fb80644fa868537faafc53a81
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743584826246
+status: 1
+tags: []
+user_id: zuy

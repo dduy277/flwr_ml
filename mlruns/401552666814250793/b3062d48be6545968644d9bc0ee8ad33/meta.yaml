@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/b3062d48be6545968644d9bc0ee8ad33/artifacts
+deleted_time: 1743352036328
+end_time: null
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: b3062d48be6545968644d9bc0ee8ad33
+run_name: overjoyed-pug-209
+run_uuid: b3062d48be6545968644d9bc0ee8ad33
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743352018696
+status: 1
+tags: []
+user_id: zuy

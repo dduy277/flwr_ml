@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/617917ec66444947844f577f17bdf551/artifacts
+deleted_time: 1743412253447
+end_time: 1743411898816
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 617917ec66444947844f577f17bdf551
+run_name: enchanting-croc-55
+run_uuid: 617917ec66444947844f577f17bdf551
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743411886781
+status: 3
+tags: []
+user_id: zuy

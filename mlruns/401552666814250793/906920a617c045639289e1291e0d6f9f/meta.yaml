@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/906920a617c045639289e1291e0d6f9f/artifacts
+deleted_time: 1743764778675
+end_time: 1743759730492
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 906920a617c045639289e1291e0d6f9f
+run_name: unequaled-smelt-382
+run_uuid: 906920a617c045639289e1291e0d6f9f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743759725464
+status: 3
+tags: []
+user_id: zuy

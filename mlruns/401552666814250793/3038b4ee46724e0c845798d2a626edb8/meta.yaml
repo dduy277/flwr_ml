@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/3038b4ee46724e0c845798d2a626edb8/artifacts
+deleted_time: 1744291969064
+end_time: 1743770443132
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 3038b4ee46724e0c845798d2a626edb8
+run_name: adorable-asp-493
+run_uuid: 3038b4ee46724e0c845798d2a626edb8
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743770438897
+status: 3
+tags: []
+user_id: zuy

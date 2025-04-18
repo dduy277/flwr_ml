@@ -1,0 +1,27 @@
+artifact_path: Gobal_model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.11
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.0
+is_signature_from_type_hint: false
+mlflow_version: 2.21.1
+model_size_bytes: 745
+model_uuid: f9925a5bf7594c9a84f28f69ff43129a
+prompts: null
+run_id: 9b0d581a1e7e49ae9612a1fd87f0d130
+signature:
+  inputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1, 16]}}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2025-04-04 09:41:50.228988'

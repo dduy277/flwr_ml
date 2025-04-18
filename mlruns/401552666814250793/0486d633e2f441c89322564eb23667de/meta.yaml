@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/0486d633e2f441c89322564eb23667de/artifacts
+deleted_time: 1743682117607
+end_time: 1743681488335
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 0486d633e2f441c89322564eb23667de
+run_name: invincible-ray-333
+run_uuid: 0486d633e2f441c89322564eb23667de
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743681484714
+status: 3
+tags: []
+user_id: zuy

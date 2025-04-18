@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/89e3e21ef35d44a2951a81d707fa457f/artifacts
+deleted_time: 1743343211953
+end_time: null
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 89e3e21ef35d44a2951a81d707fa457f
+run_name: grandiose-grub-523
+run_uuid: 89e3e21ef35d44a2951a81d707fa457f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743343123697
+status: 1
+tags: []
+user_id: zuy

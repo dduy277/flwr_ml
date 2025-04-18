@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/f7b5f979476c47b19b283306e8ce589d/artifacts
+deleted_time: 1744639767749
+end_time: 1744639349170
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: f7b5f979476c47b19b283306e8ce589d
+run_name: popular-pug-26
+run_uuid: f7b5f979476c47b19b283306e8ce589d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744639344075
+status: 3
+tags: []
+user_id: zuy

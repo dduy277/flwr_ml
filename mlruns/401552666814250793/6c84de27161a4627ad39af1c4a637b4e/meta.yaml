@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/6c84de27161a4627ad39af1c4a637b4e/artifacts
+deleted_time: 1743745631150
+end_time: 1743682150088
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 6c84de27161a4627ad39af1c4a637b4e
+run_name: incongruous-hare-218
+run_uuid: 6c84de27161a4627ad39af1c4a637b4e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743682146633
+status: 3
+tags: []
+user_id: zuy

@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/63fbac3ffc2945ac8fa08f14ce35744f/artifacts
+deleted_time: 1743412253440
+end_time: 1743411925927
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 63fbac3ffc2945ac8fa08f14ce35744f
+run_name: bouncy-ant-237
+run_uuid: 63fbac3ffc2945ac8fa08f14ce35744f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743411921152
+status: 3
+tags: []
+user_id: zuy

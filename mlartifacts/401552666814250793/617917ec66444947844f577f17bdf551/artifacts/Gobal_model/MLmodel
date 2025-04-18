@@ -1,0 +1,21 @@
+artifact_path: Gobal_model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.11
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.0
+mlflow_version: 2.21.1
+model_size_bytes: 884
+model_uuid: daae637527c74c52a5be92bf57cd3453
+prompts: null
+run_id: 617917ec66444947844f577f17bdf551
+utc_time_created: '2025-03-31 09:04:54.384640'

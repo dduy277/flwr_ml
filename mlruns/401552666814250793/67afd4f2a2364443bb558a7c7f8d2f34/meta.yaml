@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/67afd4f2a2364443bb558a7c7f8d2f34/artifacts
+deleted_time: 1744639767748
+end_time: 1744639695386
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 67afd4f2a2364443bb558a7c7f8d2f34
+run_name: tasteful-ray-129
+run_uuid: 67afd4f2a2364443bb558a7c7f8d2f34
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744639687428
+status: 3
+tags: []
+user_id: zuy

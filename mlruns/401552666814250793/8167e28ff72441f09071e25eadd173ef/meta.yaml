@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/8167e28ff72441f09071e25eadd173ef/artifacts
+deleted_time: 1743770370994
+end_time: null
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 8167e28ff72441f09071e25eadd173ef
+run_name: chill-lark-29
+run_uuid: 8167e28ff72441f09071e25eadd173ef
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743770356646
+status: 1
+tags: []
+user_id: zuy

@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/9b0d581a1e7e49ae9612a1fd87f0d130/artifacts
+deleted_time: 1743764778671
+end_time: 1743759716093
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 9b0d581a1e7e49ae9612a1fd87f0d130
+run_name: silent-chimp-197
+run_uuid: 9b0d581a1e7e49ae9612a1fd87f0d130
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743759710075
+status: 3
+tags: []
+user_id: zuy

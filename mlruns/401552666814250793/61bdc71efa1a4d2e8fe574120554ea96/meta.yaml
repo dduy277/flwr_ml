@@ -1,0 +1,16 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/61bdc71efa1a4d2e8fe574120554ea96/artifacts
+deleted_time: 1743682117606
+end_time: 1743681497900
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: deleted
+run_id: 61bdc71efa1a4d2e8fe574120554ea96
+run_name: nosy-lark-285
+run_uuid: 61bdc71efa1a4d2e8fe574120554ea96
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1743681494328
+status: 3
+tags: []
+user_id: zuy
