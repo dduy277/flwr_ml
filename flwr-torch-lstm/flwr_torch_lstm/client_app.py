@@ -49,11 +49,31 @@ class FlowerClient(NumPyClient):
         AUC = auc(recall, precision)
         # Convert probabilities to binary class predictions
         y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
-        # 
-
+        print ("precision: ",precision[0])
+        print ("recall: ",recall[0])
+        print ("y_pred: ",y_pred[0])
+        # Generate classification report
+        classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
         # Dict to json
         classification_str = json.dumps(classification)
-        return loss, len(self.valloader), {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
+        return loss, len(self.valloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str}
+        # return loss, len(self.valloader), {"accuracy": accuracy}
+
+    # def evaluate(self, parameters, config):
+    #     set_weights(self.net, parameters)
+    #     loss, accuracy, X_preds, y_labels= test(self.net, self.valloader, self.device)
+    #     # Precision-Recall curve, ROC-AUC score and f1-score
+    #     # print ("X_preds: ",X_preds[0])
+    #     # print ("y_labels: ",y_labels[1])
+    #     precision, recall, thresholds = precision_recall_curve(y_labels, X_preds)
+    #     ROC_AUC = roc_auc_score(y_labels, X_preds)
+    #     AUC = auc(recall, precision)
+    #     # print ("precision: ",precision)
+    #     # print ("recall: ",recall)
+    #     # pre = precision_score(y_labels, X_preds,average=None)
+    #     # print ("precision2: ",pre)
+    #     # return loss, len(self.valloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Precision": precision, "recall": recall, "f1_score": f1_score}
+    #     return
 
 
 

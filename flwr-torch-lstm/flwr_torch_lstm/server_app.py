@@ -71,7 +71,7 @@ def server_fn(context: Context):
         fraction_evaluate=1.0,
         min_available_clients=2,
         initial_parameters=parameters,
-        # evaluate_metrics_aggregation_fn=avg_metrics,
+        evaluate_metrics_aggregation_fn=avg_metrics,
 
     )
     config = ServerConfig(num_rounds=num_rounds)
