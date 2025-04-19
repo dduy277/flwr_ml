@@ -12,87 +12,54 @@ from datasets import Dataset
 from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
 
 
-
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Net(nn.Module):
-    def __init__(
-        self,
-        input_size: int,
-        hidden_size: int,
-        num_heads: int = 4,
-        num_layers: int = 1, 
-        num_classes: int = 2,
-        dropout: float = 0.1,
-    ):
+    def __init__(self, input_size, hidden_size, num_layers, num_classes, num_heads=4):
         super(Net, self).__init__()
-        assert hidden_size % num_heads == 0, "hidden_size must be divisible by num_heads"
-        self.hidden_size = hidden_size
         self.num_layers = num_layers
-        # project raw features into the attention embedding space
-        self.input_proj = nn.Linear(input_size, hidden_size)
-        # build a stack of MultiheadAttention + optional feed‑forward
-        self.attn_layers = nn.ModuleList()
-        for _ in range(num_layers):
-            self.attn_layers.append(
-                nn.ModuleDict({
-                    "mha": nn.MultiheadAttention(
-                        embed_dim=hidden_size,
-                        num_heads=num_heads,
-                        dropout=dropout,
-                        batch_first=True,
-                        # inputs/outputs are (B, S, E)
-                    ),
-                    "ff": nn.Sequential(
-                        nn.Linear(hidden_size, hidden_size * 4),
-                        nn.ReLU(),
-                        nn.Dropout(dropout),
-                        nn.Linear(hidden_size * 4, hidden_size),
-                        nn.Dropout(dropout),
-                    ),
-                    "norm1": nn.LayerNorm(hidden_size),
-                    "norm2": nn.LayerNorm(hidden_size),
-                })
-            )
-        # final classifier
+        self.hidden_size = hidden_size
+        
+        # Multihead Attention Layer
+        self.multihead_attention = nn.MultiheadAttention(embed_dim=hidden_size, num_heads=num_heads, batch_first=True)
+        
+        # LSTM Layer
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        
+        # Fully connected output layer
         self.fc = nn.Linear(hidden_size, num_classes)
+        
     def forward(self, x):
-        """x: (batch, seq_len, input_size)"""
-        # project into embed space, (B, S, E)
-        x = self.input_proj(x)                    
-        # pass through attention layers
-        for layer in self.attn_layers:
-            # self‑attention, (B, S, E)
-            attn_out, _ = layer["mha"](x, x, x)
-            x = layer["norm1"](x + attn_out)      # residual + norm
-            # feed‑forward, (B, S, E)
-            ff_out = layer["ff"](x) 
-            x = layer["norm2"](x + ff_out)        # residual + norm
-        # pool across sequence (could also take x[:, -1] if need "last token")
-        # (B, E)
-        x = x.mean(dim=1)                         
-        # classification head, (B, num_classes)
-        logits = self.fc(x)
-        return logits
-
-
-fds = None  # Cache FederatedDataset
+        # Initialize hidden states for LSTM
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        
+        # LSTM forward pass
+        out, _ = self.lstm(x, (h0, c0))  # out shape: [batch_size, seq_len, hidden_size]
+        
+        # Multihead Attention
+        # The LSTM output [batch_size, seq_len, hidden_size] is passed to multihead attention
+        attn_output, _ = self.multihead_attention(out, out, out)
+        
+        # Use the last time step's output for classification
+        out = attn_output[:, -1, :]
+        
+        # Fully connected layer
+        out = self.fc(out)
+        return out
 
 def load_data(partition_id: int, num_partitions: int):
-    """Load partition df_3 data."""
+    """Load partitioned dataset."""
     df = pd.read_csv('/home/zuy/Documents/BCU/ML/CSV/df_train_3.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
     partitioner = IidPartitioner(num_partitions=num_partitions)
-    # partitioner = DirichletPartitioner(num_partitions=num_partitions, partition_by="Class", alpha=10, min_partition_size=5)
     partitioner.dataset = dataset
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
-    # Split the on edge data: 80% train, 20% test
-    trainloader, testloader= train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
-
+    
+    trainloader, testloader = train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
     return trainloader, testloader
-
 
 def train(net, trainloader, epochs, device):
     """Train the model on the training set."""
@@ -104,7 +71,7 @@ def train(net, trainloader, epochs, device):
     for _ in range(epochs):
         for i in trainloader:
             X_train = trainloader.drop('Class', axis=1).values
-            X_train = torch.from_numpy(np.expand_dims(X_train, axis =1))  
+            X_train = torch.from_numpy(np.expand_dims(X_train, axis=1))  # Add sequence dimension
             y_train = torch.from_numpy(trainloader['Class'].values).long()
 
             outputs = net(X_train.to(device))
