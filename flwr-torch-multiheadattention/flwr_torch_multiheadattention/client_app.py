@@ -11,12 +11,11 @@ from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, classifi
 
 
 ## Hyper-parameters 
-input_size = 16 # dataset collumns
-hidden_size = 1
-num_layers = 3
+input_dim = 1 # dataset collumns
+dim_model = 64
 num_classes = 2 # num y class
+num_heads = 4
 
-# Define Flower Client and client_fn
 class FlowerClient(NumPyClient):
     def __init__(self, net, trainloader, valloader, local_epochs):
         self.net = net
@@ -57,7 +56,7 @@ class FlowerClient(NumPyClient):
 
 def client_fn(context: Context):
     # Load model and data
-    net = Net(input_size, hidden_size, num_layers, num_classes)
+    net = Net(input_dim, dim_model, num_classes, num_heads)
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]
     trainloader, valloader = load_data(partition_id, num_partitions)

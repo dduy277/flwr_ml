@@ -12,10 +12,10 @@ from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss
 
 
 ## Hyper-parameters 
-input_size = 16 # dataset collumns
-hidden_size = 1
-num_layers = 3
+input_dim = 1 # dataset collumns
+dim_model = 64
 num_classes = 2 # num y class
+num_heads = 4
 
 
 # # Take ROC_AUC, AUC, classification_report
@@ -62,7 +62,7 @@ def server_fn(context: Context):
     fraction_fit = context.run_config["fraction-fit"]
 
     # Initialize model parameters
-    ndarrays = get_weights(Net(input_size, hidden_size, num_layers, num_classes))
+    ndarrays = get_weights(Net(input_dim, dim_model, num_classes, num_heads))
     parameters = ndarrays_to_parameters(ndarrays)
 
     # Define strategy

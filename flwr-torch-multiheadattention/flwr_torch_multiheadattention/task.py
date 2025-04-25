@@ -13,61 +13,50 @@ from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss
 import math
 
 
-class MultiheadSelfAttention(nn.Module):
-    def __init__(self, embed_dim, num_heads):   #self, 128, 3)
-        super(MultiheadSelfAttention, self).__init__()
-        assert embed_dim % num_heads == 0   # check if embed_dim % by num_heads == 0
+def scaled_dot_product(q, k, v, mask=None):
+    d_k = q.size()[-1]
+    scaled = torch.matmul(q, k.transpose(-1, -2)) / math.sqrt(d_k)
+    if mask is not None:
+        scaled += mask
+    attention = F.softmax(scaled, dim=-1)
+    values = torch.matmul(attention, v)
+    return values, attention
 
-        self.embed_dim = embed_dim
+class MultiheadAttention(nn.Module):
+
+    def __init__(self, input_dim, dim_model, num_heads):
+        super().__init__()
+        self.input_dim = input_dim
+        self.dim_model = dim_model
         self.num_heads = num_heads
-        self.head_dim = embed_dim // num_heads
-
-        # Define linear layers for query, key, value (Q,K,V)
-        self.q_linear = nn.Linear(embed_dim, embed_dim)
-        self.k_linear = nn.Linear(embed_dim, embed_dim)
-        self.v_linear = nn.Linear(embed_dim, embed_dim)
-
-        # Output projection
-        self.fc = nn.Linear(embed_dim, embed_dim)
-
-    def forward(self, x):   # x = ( batch_size, seq_len, embed_dim )
-        print("shape: ",x.shape)
-        batch_size, seq_len, embed_dim = x.size()
-        # Linear projections
-        Q = self.q_linear(x)    # ( batch, seq_len, embed_dim )
-        K = self.k_linear(x)    # ( batch, seq_len, embed_dim )
-        V = self.v_linear(x)    # ( batch, seq_len, embed_dim )
-        # Split into heads
-        # [ After reshape: (batch_size, seq_len, num_heads, head_dim) ] 
-        # [ After transpose: (batch_size, num_heads, seq_len, head_dim) ]
-        Q = Q.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)  #(B, H, S, D)
-        K = K.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
-        V = V.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
-
-        # Scaled dot-product attention
-        scores = torch.matmul(Q, K.transpose(-2, -1)) / (self.head_dim ** 0.5)  # (B, H, S, S)
-        attn = F.softmax(scores, dim=-1)  # (B, H, S, S)
-        context = torch.matmul(attn, V)   # (B, H, S, D)
-
-        # Merge all attention heads back into a single tensor.
-        context = context.transpose(1, 2).contiguous().view(batch_size, seq_len, embed_dim)  # (B, S, E)
-
-        # Final linear layer
-        out = self.fc(context)  # ( batch, seq_len, embed_dim )
+        self.head_dim = dim_model // num_heads
+        
+        self.qkv_layer = nn.Linear(input_dim , 3 * dim_model)
+        self.linear_layer = nn.Linear(dim_model, dim_model)
+    
+    def forward(self, x, mask=None):
+        batch_size, sequence_length, input_dim = x.size()
+        qkv = self.qkv_layer(x)
+        qkv = qkv.reshape(batch_size, sequence_length, self.num_heads, 3 * self.head_dim)
+        qkv = qkv.permute(0, 2, 1, 3)
+        q, k, v = qkv.chunk(3, dim=-1)
+        values, attention = scaled_dot_product(q, k, v, mask)
+        values = values.reshape(batch_size, sequence_length, self.num_heads * self.head_dim)
+        out = self.linear_layer(values)
         return out
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Net(nn.Module):
-    def __init__(self, input_size, hidden_size, num_classes, num_heads=3):
+    def __init__(self, input_dim, dim_model, num_classes, num_heads):
         super(Net, self).__init__()
-        self.multihead_attention = MultiheadSelfAttention(embed_dim=input_size, num_heads=num_heads)
-        self.fc = nn.Linear(input_size, num_classes)
-    def forward(self, x):
+        self.multihead_attention = MultiheadAttention(input_dim=input_dim, dim_model=dim_model, num_heads=num_heads)
+        self.fc = nn.Linear(dim_model, num_classes)
+    def forward(self, x, mask=None):
         # Apply Multihead Attention
-        attn_output, _ = self.multihead_attention(x)  # [batch_size, seq_len, input_size]
-        out = attn_output[:, -1, :]  # [batch_size, (remove), input_size]
+        attn_output = self.multihead_attention(x, mask)  # [batch_size, seq_len, input_dim]
+        out = attn_output[:, -1, :]  # [batch_size, (remove), input_dim]
         out = self.fc(out)
         return out
 
@@ -93,8 +82,8 @@ def train(net, trainloader, epochs, device):
     running_loss = 0.0
     for _ in range(epochs):
         for i in trainloader:
-            X_train = trainloader.drop('Class', axis=1).values
-            X_train = torch.from_numpy(np.expand_dims(X_train, axis=1))  # Add sequence dimension
+            X_train = trainloader.drop('Class', axis=1).values.astype('float32')
+            X_train = torch.from_numpy(np.expand_dims(X_train, axis=2)).float()
             y_train = torch.from_numpy(trainloader['Class'].values).long()
 
             outputs = net(X_train.to(device))
@@ -120,7 +109,7 @@ def test(net, testloader, device):
     with torch.no_grad():
         for i in testloader:
             X_test = testloader.drop('Class', axis=1).values
-            X_test = torch.from_numpy(np.expand_dims(X_test, axis =1))
+            X_test = torch.from_numpy(np.expand_dims(X_test, axis=2)).float()
             y_test = torch.from_numpy(testloader['Class'].values).long()
             
             outputs = net(X_test.to(device))
