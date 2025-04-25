@@ -10,41 +10,64 @@ import numpy as np
 import pandas as pd
 from datasets import Dataset
 from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
+import math
+
+
+class MultiheadSelfAttention(nn.Module):
+    def __init__(self, embed_dim, num_heads):   #self, 128, 3)
+        super(MultiheadSelfAttention, self).__init__()
+        assert embed_dim % num_heads == 0   # check if embed_dim % by num_heads == 0
+
+        self.embed_dim = embed_dim
+        self.num_heads = num_heads
+        self.head_dim = embed_dim // num_heads
+
+        # Define linear layers for query, key, value (Q,K,V)
+        self.q_linear = nn.Linear(embed_dim, embed_dim)
+        self.k_linear = nn.Linear(embed_dim, embed_dim)
+        self.v_linear = nn.Linear(embed_dim, embed_dim)
+
+        # Output projection
+        self.fc = nn.Linear(embed_dim, embed_dim)
+
+    def forward(self, x):   # x = ( batch_size, seq_len, embed_dim )
+        print("shape: ",x.shape)
+        batch_size, seq_len, embed_dim = x.size()
+        # Linear projections
+        Q = self.q_linear(x)    # ( batch, seq_len, embed_dim )
+        K = self.k_linear(x)    # ( batch, seq_len, embed_dim )
+        V = self.v_linear(x)    # ( batch, seq_len, embed_dim )
+        # Split into heads
+        # [ After reshape: (batch_size, seq_len, num_heads, head_dim) ] 
+        # [ After transpose: (batch_size, num_heads, seq_len, head_dim) ]
+        Q = Q.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)  #(B, H, S, D)
+        K = K.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        V = V.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+
+        # Scaled dot-product attention
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / (self.head_dim ** 0.5)  # (B, H, S, S)
+        attn = F.softmax(scores, dim=-1)  # (B, H, S, S)
+        context = torch.matmul(attn, V)   # (B, H, S, D)
+
+        # Merge all attention heads back into a single tensor.
+        context = context.transpose(1, 2).contiguous().view(batch_size, seq_len, embed_dim)  # (B, S, E)
+
+        # Final linear layer
+        out = self.fc(context)  # ( batch, seq_len, embed_dim )
+        return out
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Net(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, num_classes, num_heads=4):
+    def __init__(self, input_size, hidden_size, num_classes, num_heads=3):
         super(Net, self).__init__()
-        self.num_layers = num_layers
-        self.hidden_size = hidden_size
-        
-        # Multihead Attention Layer
-        self.multihead_attention = nn.MultiheadAttention(embed_dim=hidden_size, num_heads=num_heads, batch_first=True)
-        
-        # LSTM Layer
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-        
-        # Fully connected output layer
-        self.fc = nn.Linear(hidden_size, num_classes)
-        
+        self.multihead_attention = MultiheadSelfAttention(embed_dim=input_size, num_heads=num_heads)
+        self.fc = nn.Linear(input_size, num_classes)
     def forward(self, x):
-        # Initialize hidden states for LSTM
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        
-        # LSTM forward pass
-        out, _ = self.lstm(x, (h0, c0))  # out shape: [batch_size, seq_len, hidden_size]
-        
-        # Multihead Attention
-        # The LSTM output [batch_size, seq_len, hidden_size] is passed to multihead attention
-        attn_output, _ = self.multihead_attention(out, out, out)
-        
-        # Use the last time step's output for classification
-        out = attn_output[:, -1, :]
-        
-        # Fully connected layer
+        # Apply Multihead Attention
+        attn_output, _ = self.multihead_attention(x)  # [batch_size, seq_len, input_size]
+        out = attn_output[:, -1, :]  # [batch_size, (remove), input_size]
         out = self.fc(out)
         return out
 
