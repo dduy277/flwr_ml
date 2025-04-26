@@ -34,7 +34,7 @@ class MultiheadAttention(nn.Module):
         self.qkv_layer = nn.Linear(input_dim , 3 * dim_model)
         self.linear_layer = nn.Linear(dim_model, dim_model)
     
-    def forward(self, x, mask=None):
+    def forward(self, x, mask):
         batch_size, sequence_length, input_dim = x.size()
         qkv = self.qkv_layer(x)
         qkv = qkv.reshape(batch_size, sequence_length, self.num_heads, 3 * self.head_dim)
@@ -43,7 +43,7 @@ class MultiheadAttention(nn.Module):
         values, attention = scaled_dot_product(q, k, v, mask)
         values = values.reshape(batch_size, sequence_length, self.num_heads * self.head_dim)
         out = self.linear_layer(values)
-        return out
+        return out, values
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -55,7 +55,7 @@ class Net(nn.Module):
         self.fc = nn.Linear(dim_model, num_classes)
     def forward(self, x, mask=None):
         # Apply Multihead Attention
-        attn_output = self.multihead_attention(x, mask)  # [batch_size, seq_len, input_dim]
+        attn_output, _= self.multihead_attention(x, mask)  # [batch_size, seq_len, input_dim]
         out = attn_output[:, -1, :]  # [batch_size, (remove), input_dim]
         out = self.fc(out)
         return out
