@@ -11,7 +11,7 @@ import mlflow
 
 def load_data(partition_id: int, num_partitions: int):
     """Load partition df_3 data."""
-    df = pd.read_csv('/home/zuy/Documents/BCU/ML/CSV/df_train_3.csv')
+    df = pd.read_csv('../ML/CSV/df_train_3.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
     partitioner = IidPartitioner(num_partitions=num_partitions)
