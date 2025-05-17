@@ -47,13 +47,13 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         precision.append(round(precision_temp, 2))
         recall.append(round(recall_temp, 2))
         f1_score.append(round(f1_score_temp, 2))
-        print ("HERE: ",ROC_AUC)
         
     # average of metrics
     avg_precision = round(sum(precision) / len(precision), 2)
     avg_recall = round(sum(recall) / len(recall), 2)
     avg_f1_score = round(sum(f1_score) / len(f1_score), 2)
 
+    # np.float64 doesn't affect anything, it looks ugly though.
     # return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     return {"avg_precision": avg_precision, "avg_recall": avg_recall, "avg_f1_score": avg_f1_score, "avg_ROC_AUC": avg_ROC_AUC, "avg_AUC": avg_AUC}
 
