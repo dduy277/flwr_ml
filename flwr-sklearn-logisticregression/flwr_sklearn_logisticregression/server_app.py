@@ -118,7 +118,7 @@ def server_fn(context: Context):
     
 
     # # Load global test set
-    df_test = pd.read_csv('/home/zuy/Documents/BCU/ML/CSV/df_test_3.csv')
+    df_test = pd.read_csv('../clML/CSV/df_test_3.csv')
     df_test.drop("Unnamed: 0", axis=1, inplace=True)
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
     X_test_global = df_test.drop('Class', axis=1).values
