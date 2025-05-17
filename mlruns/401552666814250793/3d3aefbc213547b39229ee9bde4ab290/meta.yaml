@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/3d3aefbc213547b39229ee9bde4ab290/artifacts
+end_time: 1747456979500
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: active
+run_id: 3d3aefbc213547b39229ee9bde4ab290
+run_name: adorable-yak-168
+run_uuid: 3d3aefbc213547b39229ee9bde4ab290
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747456978083
+status: 3
+tags: []
+user_id: zuy

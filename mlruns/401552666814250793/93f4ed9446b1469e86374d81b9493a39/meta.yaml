@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/93f4ed9446b1469e86374d81b9493a39/artifacts
+end_time: 1747457005651
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: active
+run_id: 93f4ed9446b1469e86374d81b9493a39
+run_name: overjoyed-snipe-955
+run_uuid: 93f4ed9446b1469e86374d81b9493a39
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747457003708
+status: 3
+tags: []
+user_id: zuy

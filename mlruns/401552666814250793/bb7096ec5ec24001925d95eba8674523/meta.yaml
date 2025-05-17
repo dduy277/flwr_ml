@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/bb7096ec5ec24001925d95eba8674523/artifacts
+end_time: 1747455799690
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: active
+run_id: bb7096ec5ec24001925d95eba8674523
+run_name: debonair-yak-254
+run_uuid: bb7096ec5ec24001925d95eba8674523
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747455798244
+status: 3
+tags: []
+user_id: zuy

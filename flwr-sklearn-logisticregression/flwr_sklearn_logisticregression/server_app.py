@@ -36,7 +36,6 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         # average of metrics
         avg_ROC_AUC = round(sum(ROC_AUC) / len(ROC_AUC), 4)
         avg_AUC = round(sum(AUC) / len(AUC), 4)
-
         "Get classification_str"
         # json to dict
         classification = json.loads(m["Classification_str"])
@@ -48,14 +47,15 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         precision.append(round(precision_temp, 2))
         recall.append(round(recall_temp, 2))
         f1_score.append(round(f1_score_temp, 2))
+        print ("HERE: ",ROC_AUC)
         
     # average of metrics
     avg_precision = round(sum(precision) / len(precision), 2)
     avg_recall = round(sum(recall) / len(recall), 2)
     avg_f1_score = round(sum(f1_score) / len(f1_score), 2)
 
-    return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
-    # return {"avg_precision": avg_precision, "avg_recall": avg_recall, "avg_f1_score": avg_f1_score, "avg_ROC_AUC": avg_ROC_AUC, "avg_AUC": avg_AUC}
+    # return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
+    return {"avg_precision": avg_precision, "avg_recall": avg_recall, "avg_f1_score": avg_f1_score, "avg_ROC_AUC": avg_ROC_AUC, "avg_AUC": avg_AUC}
 
 
 # Evaluates the global mode
@@ -118,7 +118,7 @@ def server_fn(context: Context):
     
 
     # # Load global test set
-    df_test = pd.read_csv('../clML/CSV/df_test_3.csv')
+    df_test = pd.read_csv('../ML/CSV/df_test_3.csv')
     df_test.drop("Unnamed: 0", axis=1, inplace=True)
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
     X_test_global = df_test.drop('Class', axis=1).values

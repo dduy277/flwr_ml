@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/26ca055562f94355a740d41dbf2b6f89/artifacts
+end_time: 1747456608761
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: active
+run_id: 26ca055562f94355a740d41dbf2b6f89
+run_name: welcoming-mouse-965
+run_uuid: 26ca055562f94355a740d41dbf2b6f89
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747456607278
+status: 3
+tags: []
+user_id: zuy

@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1747456502261
+current_stage: None
+description: ''
+last_updated_timestamp: 1747456502261
+name: Gobal_flwr_logres_
+run_id: 7ba39afc61ee412c9b4ea81a1ab76da3
+run_link: ''
+source: mlflow-artifacts:/401552666814250793/7ba39afc61ee412c9b4ea81a1ab76da3/artifacts/G_model
+status: READY
+status_message: null
+storage_location: mlflow-artifacts:/401552666814250793/7ba39afc61ee412c9b4ea81a1ab76da3/artifacts/G_model
+user_id: null
+version: 14

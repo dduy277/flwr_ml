@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/401552666814250793/eacdb2d26d4c433bba73b0189dedc1ac/artifacts
+end_time: 1747455308421
+entry_point_name: ''
+experiment_id: '401552666814250793'
+lifecycle_stage: active
+run_id: eacdb2d26d4c433bba73b0189dedc1ac
+run_name: capricious-fly-839
+run_uuid: eacdb2d26d4c433bba73b0189dedc1ac
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747455306483
+status: 3
+tags: []
+user_id: zuy

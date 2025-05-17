@@ -42,7 +42,7 @@ class FlowerClient(NumPyClient):
         precision, recall, thresholds = precision_recall_curve(self.y_test, y_score=self.model.predict_proba(self.X_test)[:, 1])
         ROC_AUC = roc_auc_score(self.y_test, self.model.predict_proba(self.X_test)[:, 1])
         AUC = auc(recall, precision)
-
+        # print ("HERE: ",ROC_AUC)
         classification = classification_report(self.y_test, self.model.predict(self.X_test), target_names=['Not Fraud', 'Fraud'], output_dict=True)
         # Dict to json
         classification_str = json.dumps(classification)
