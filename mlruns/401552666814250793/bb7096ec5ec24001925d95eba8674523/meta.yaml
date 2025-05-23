@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/bb7096ec5ec24001925d95eba8674523/artifacts
+deleted_time: 1747988034312
 end_time: 1747455799690
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: bb7096ec5ec24001925d95eba8674523
 run_name: debonair-yak-254
 run_uuid: bb7096ec5ec24001925d95eba8674523

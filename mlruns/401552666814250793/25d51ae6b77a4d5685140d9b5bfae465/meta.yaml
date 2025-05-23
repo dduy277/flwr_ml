@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/25d51ae6b77a4d5685140d9b5bfae465/artifacts
+deleted_time: 1747988034310
 end_time: 1747456604709
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: 25d51ae6b77a4d5685140d9b5bfae465
 run_name: rebellious-perch-134
 run_uuid: 25d51ae6b77a4d5685140d9b5bfae465

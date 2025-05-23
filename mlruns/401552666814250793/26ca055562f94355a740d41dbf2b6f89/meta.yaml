@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/26ca055562f94355a740d41dbf2b6f89/artifacts
+deleted_time: 1747988034310
 end_time: 1747456608761
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: 26ca055562f94355a740d41dbf2b6f89
 run_name: welcoming-mouse-965
 run_uuid: 26ca055562f94355a740d41dbf2b6f89

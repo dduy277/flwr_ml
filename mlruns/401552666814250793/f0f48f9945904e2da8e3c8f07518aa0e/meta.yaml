@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/f0f48f9945904e2da8e3c8f07518aa0e/artifacts
+deleted_time: 1747988034304
 end_time: 1747457013650
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: f0f48f9945904e2da8e3c8f07518aa0e
 run_name: classy-fish-98
 run_uuid: f0f48f9945904e2da8e3c8f07518aa0e

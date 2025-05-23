@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/a5f1b96edc47441da90e9928b92a238e/artifacts
+deleted_time: 1747988034302
 end_time: 1747457072081
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: a5f1b96edc47441da90e9928b92a238e
 run_name: dapper-carp-28
 run_uuid: a5f1b96edc47441da90e9928b92a238e

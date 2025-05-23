@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/0e6f33efc4f9427ba45078622426d49e/artifacts
+deleted_time: 1747988034314
 end_time: null
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: 0e6f33efc4f9427ba45078622426d49e
 run_name: monumental-gnat-352
 run_uuid: 0e6f33efc4f9427ba45078622426d49e

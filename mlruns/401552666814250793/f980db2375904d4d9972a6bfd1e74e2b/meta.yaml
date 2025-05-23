@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/f980db2375904d4d9972a6bfd1e74e2b/artifacts
+deleted_time: 1747988034312
 end_time: 1747456498096
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: f980db2375904d4d9972a6bfd1e74e2b
 run_name: loud-mink-526
 run_uuid: f980db2375904d4d9972a6bfd1e74e2b

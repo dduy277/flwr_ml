@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/2536e5958b6b4b918f73941ab333de9d/artifacts
+deleted_time: 1747988034312
 end_time: 1747455313850
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: 2536e5958b6b4b918f73941ab333de9d
 run_name: nimble-perch-451
 run_uuid: 2536e5958b6b4b918f73941ab333de9d

@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/380fd82491ad4abeb156c93eb7f4ab0f/artifacts
+deleted_time: 1747988034306
 end_time: 1747456976838
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: 380fd82491ad4abeb156c93eb7f4ab0f
 run_name: defiant-mouse-191
 run_uuid: 380fd82491ad4abeb156c93eb7f4ab0f

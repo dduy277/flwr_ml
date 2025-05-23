@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/6c6affb2b52a471cacbc904239595d09/artifacts
+deleted_time: 1747988034314
 end_time: 1747454207942
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: 6c6affb2b52a471cacbc904239595d09
 run_name: painted-panda-343
 run_uuid: 6c6affb2b52a471cacbc904239595d09

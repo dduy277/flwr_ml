@@ -1,8 +1,9 @@
 artifact_uri: mlflow-artifacts:/401552666814250793/d61d75dbb0f2441983ff4f8eebd5f3a1/artifacts
+deleted_time: 1747988034309
 end_time: 1747456705798
 entry_point_name: ''
 experiment_id: '401552666814250793'
-lifecycle_stage: active
+lifecycle_stage: deleted
 run_id: d61d75dbb0f2441983ff4f8eebd5f3a1
 run_name: selective-frog-594
 run_uuid: d61d75dbb0f2441983ff4f8eebd5f3a1
