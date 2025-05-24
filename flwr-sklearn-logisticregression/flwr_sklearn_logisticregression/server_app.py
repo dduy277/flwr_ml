@@ -11,6 +11,7 @@ from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss
 import mlflow
 import mlflow.sklearn
 from mlflow.models import infer_signature
+from mlflow.data.pandas_dataset import PandasDataset
 
 """MlFlow tracking"""
 # Set our tracking server uri for logging
@@ -59,7 +60,7 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
 
 
 # Evaluates the global mode
-def get_eval_func(X_test_global, y_test_global, g_model, num_rounds, params):
+def get_eval_func(X_test_global, y_test_global, g_model, num_rounds, params, Test_ds):
     """Return a callback that evaluates the global model"""
     def eval(server_round, parameters_ndarrays, config): # server_round == current round
         set_model_params(g_model, parameters_ndarrays)
@@ -78,21 +79,26 @@ def get_eval_func(X_test_global, y_test_global, g_model, num_rounds, params):
 
         # Log the metrics (last run)
         if server_round == num_rounds:
-            # mlflow.log_params(params)
+            # Log metric, params
             mlflow.log_metric("precision", precision)
             mlflow.log_metric("recall", recall)
             mlflow.log_metric("f1-score", f1_score)
             mlflow.log_metric("ROC_AUC", ROC_AUC)
             mlflow.log_metric("AUC", AUC)
             mlflow.log_metric("Loss", loss)
-            # Log params
             mlflow.log_params(params)
+            # Log test dataset
+            mlflow.log_input(Test_ds, context="testing")
             # Log the model
             signature = infer_signature(X_test_global, g_model.predict(X_test_global))
-            mlflow.sklearn.log_model(sk_model=g_model, artifact_path="G_model", signature=signature, registered_model_name="Gobal_flwr-sklearn-logisticregression")
+            mlflow.sklearn.log_model(
+            sk_model=g_model, 
+            artifact_path="G_model", 
+            signature=signature, 
+            registered_model_name="Gobal_flwr-sklearn-logisticregression", 
+            input_example=X_test_global,
+            )
             mlflow.end_run()
-            # signature = infer_signature(X_test_global, g_model.predict(X_test_global))
-            # mlflow.sklearn.log_model(sk_model=g_model, artifact_path="Gobal_model1", signature=signature)
             # # End MLflow Experiment
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
@@ -117,14 +123,13 @@ def server_fn(context: Context):
     set_initial_params(model)
     initial_parameters = ndarrays_to_parameters(get_model_params(model))
     
-
     # # Load global test set
     df_test = pd.read_csv('../ML/CSV/df_test_3.csv')
     df_test.drop("Unnamed: 0", axis=1, inplace=True)
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
     X_test_global = df_test.drop('Class', axis=1).values
     y_test_global = df_test['Class'].values
-    
+    Test_ds: PandasDataset = mlflow.data.from_pandas(df_test, targets="Class") # for MLflow
 
     # Define strategy
     strategy = FedAvg(
@@ -133,7 +138,7 @@ def server_fn(context: Context):
         min_available_clients=2,
         initial_parameters=initial_parameters,
         evaluate_metrics_aggregation_fn=avg_metrics,
-        evaluate_fn=get_eval_func(X_test_global, y_test_global, model, num_rounds, params),
+        evaluate_fn=get_eval_func(X_test_global, y_test_global, model, num_rounds, params, Test_ds),
     )
     config = ServerConfig(num_rounds=num_rounds)
 
