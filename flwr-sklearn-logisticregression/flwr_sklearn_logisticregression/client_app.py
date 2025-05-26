@@ -23,7 +23,7 @@ class FlowerClient(NumPyClient):
         self.X_test = X_test
         self.y_train = y_train
         self.y_test = y_test
-
+        #testing
     def fit(self, parameters, config):
         set_model_params(self.model, parameters)
 
