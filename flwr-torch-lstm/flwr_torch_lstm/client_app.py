@@ -18,10 +18,10 @@ num_classes = 2 # num y class
 
 # Define Flower Client and client_fn
 class FlowerClient(NumPyClient):
-    def __init__(self, net, trainloader, valloader, local_epochs):
+    def __init__(self, net, trainloader, testloader, local_epochs):
         self.net = net
         self.trainloader = trainloader
-        self.valloader = valloader
+        self.testloader = testloader
         self.local_epochs = local_epochs
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.net.to(self.device)
@@ -29,10 +29,10 @@ class FlowerClient(NumPyClient):
     def fit(self, parameters, config):
         set_weights(self.net, parameters)
         train_loss = train(
-            self.net,
-            self.trainloader,
-            self.local_epochs,
-            self.device,
+            net=self.net,
+            trainloader=self.trainloader,
+            epochs=self.local_epochs,
+            device=self.device,
         )
         return (
             get_weights(self.net),
@@ -42,7 +42,8 @@ class FlowerClient(NumPyClient):
 
     def evaluate(self, parameters, config):
         set_weights(self.net, parameters)
-        loss, accuracy, X_preds, y_labels= test(self.net, self.valloader, self.device)
+        # Eval
+        loss, accuracy, X_preds, y_labels= test(self.net, self.testloader, self.device)
         # Precision-Recall curve and ROC-AUC score
         precision, recall, thresholds = precision_recall_curve(y_labels, X_preds)
         ROC_AUC = roc_auc_score(y_labels, X_preds)
@@ -56,8 +57,8 @@ class FlowerClient(NumPyClient):
         classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
         # Dict to json
         classification_str = json.dumps(classification)
-        return loss, len(self.valloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str}
-        # return loss, len(self.valloader), {"accuracy": accuracy}
+        return loss, len(self.testloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str}
+        # return loss, len(self.testloader), {"accuracy": accuracy}
 
 
 def client_fn(context: Context):
@@ -65,11 +66,11 @@ def client_fn(context: Context):
     net = Net(input_size, hidden_size, num_layers, num_classes)
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]
-    trainloader, valloader = load_data(partition_id, num_partitions)
+    trainloader, testloader = load_data(partition_id, num_partitions)
     local_epochs = context.run_config["local-epochs"]
 
     # Return Client instance
-    return FlowerClient(net, trainloader, valloader, local_epochs).to_client()
+    return FlowerClient(net, trainloader, testloader, local_epochs).to_client()
 
 
 # Flower ClientApp

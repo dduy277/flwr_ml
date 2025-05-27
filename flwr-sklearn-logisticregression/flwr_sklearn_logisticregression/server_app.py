@@ -13,12 +13,13 @@ import mlflow.sklearn
 from mlflow.models import infer_signature
 from mlflow.data.pandas_dataset import PandasDataset
 
+
 """MlFlow tracking"""
 # Set our tracking server uri for logging
 mlflow.set_tracking_uri(uri="http://localhost:5000")
 
 # Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow Quickstart")
+mlflow.set_experiment("MLflow_Fedterated")
 mlflow.start_run()
 
 # Take ROC_AUC, AUC, classification_report
@@ -131,7 +132,7 @@ def server_fn(context: Context):
 
     # Define strategy
     strategy = FedAvg(
-        fraction_fit=1.0,
+        fraction_fit=1.0,   # add this to config later 
         fraction_evaluate=1.0,
         min_available_clients=2,
         initial_parameters=initial_parameters,

@@ -44,7 +44,7 @@ def load_data(partition_id: int, num_partitions: int):
     partitioner.dataset = dataset
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
-    # Split the on edge data: 80% train, 20% test
+    # Split the data: 80% train, 20% test
     trainloader, testloader= train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
 
     return trainloader, testloader
