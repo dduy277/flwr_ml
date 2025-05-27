@@ -16,13 +16,13 @@ from mlflow.data.pandas_dataset import PandasDataset
 import torch
 
 
-"""MlFlow tracking"""
-# Set our tracking server uri for logging
-mlflow.set_tracking_uri(uri="http://localhost:5000")
+# """MlFlow tracking"""
+# # Set our tracking server uri for logging
+# mlflow.set_tracking_uri(uri="http://localhost:5000")
 
-# Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow Quickstart")
-mlflow.start_run(run_name = "Gobal_flwr-torch-lstm")
+# # Create / start a new MLflow Experiment
+# mlflow.set_experiment("MLflow Quickstart")
+# mlflow.start_run(run_name = "Gobal_flwr-torch-lstm")
 
 ## Hyper-parameters 
 input_size = 16 # dataset collumns
@@ -161,7 +161,7 @@ def server_fn(context: Context):
         min_available_clients=2,
         initial_parameters=parameters,
         evaluate_metrics_aggregation_fn=avg_metrics,
-        evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
+        # evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
     )
     config = ServerConfig(num_rounds=num_rounds)
 

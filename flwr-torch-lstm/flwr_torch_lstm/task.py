@@ -32,8 +32,6 @@ class Net(nn.Module):
         return out
  
 
-fds = None  # Cache FederatedDataset
-
 def load_data(partition_id: int, num_partitions: int):
     """Load partition df_3 data."""
     df = pd.read_csv('../ML/CSV/df_train_3.csv')
@@ -46,7 +44,6 @@ def load_data(partition_id: int, num_partitions: int):
     dataset = dataset.astype('float32')
     # Split the data: 80% train, 20% test
     trainloader, testloader= train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
-
     return trainloader, testloader
 
 
@@ -60,7 +57,7 @@ def train(net, trainloader, epochs, device):
     for _ in range(epochs):
         for i in trainloader:
             X_train = trainloader.drop('Class', axis=1).values
-            X_train = torch.from_numpy(np.expand_dims(X_train, axis =1))  
+            X_train = torch.from_numpy(np.expand_dims(X_train, axis=1))  
             y_train = torch.from_numpy(trainloader['Class'].values).long()
 
             outputs = net(X_train.to(device))
@@ -86,7 +83,7 @@ def test(net, testloader, device):
     with torch.no_grad():
         for i in testloader:
             X_test = testloader.drop('Class', axis=1).values
-            X_test = torch.from_numpy(np.expand_dims(X_test, axis =1))
+            X_test = torch.from_numpy(np.expand_dims(X_test, axis=1))
             y_test = torch.from_numpy(testloader['Class'].values).long()
             
             outputs = net(X_test.to(device))
@@ -94,14 +91,13 @@ def test(net, testloader, device):
             loss += criterion(outputs, y_test).item()
 
             probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()  # Probability for the positive class
-            # _, predicted = torch.max(outputs.data, 1)
             all_X_preds.extend(probs)
             all_y_labels.extend(y_test.cpu().numpy())
 
             correct += (torch.max(outputs.data, 1)[1] == y_test).sum().item()
     accuracy = correct / len(testloader)
     loss = loss / len(testloader)
-    return loss, accuracy, all_X_preds, all_y_labels
+    return loss, accuracy, np.array(all_X_preds), np.array(all_y_labels)
 
 
 def get_weights(net):

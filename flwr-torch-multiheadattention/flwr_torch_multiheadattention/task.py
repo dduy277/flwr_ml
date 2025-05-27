@@ -69,7 +69,7 @@ def load_data(partition_id: int, num_partitions: int):
     partitioner.dataset = dataset
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
-    
+    # Split the data: 80% train, 20% test
     trainloader, testloader = train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
     return trainloader, testloader
 
@@ -117,7 +117,6 @@ def test(net, testloader, device):
             loss += criterion(outputs, y_test).item()
 
             probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()  # Probability for the positive class
-            # _, predicted = torch.max(outputs.data, 1)
             all_X_preds.extend(probs)
             all_y_labels.extend(y_test.cpu().numpy())
 

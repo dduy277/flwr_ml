@@ -12,7 +12,7 @@ from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss
 
 
 ## Hyper-parameters 
-input_dim = 1 # dataset collumns
+input_dim = 1
 dim_model = 64
 num_classes = 2 # num y class
 num_heads = 4
