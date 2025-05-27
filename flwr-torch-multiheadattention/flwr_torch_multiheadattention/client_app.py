@@ -50,8 +50,8 @@ class FlowerClient(NumPyClient):
         y_pred = torch.tensor([1 if p >= 0.5 else 0 for p in X_preds], dtype=torch.int64)
         # print ("precision: ",precision[0])
         # print ("recall: ",recall[0])
-        # print ("y_labels: ",y_labels[0])
-        # print ("y_pred: ",y_pred[0])
+        print ("y_labels: ",y_labels[0])
+        print ("y_pred: ",y_pred[0])
         # Generate classification report
         classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
         # Dict to json
