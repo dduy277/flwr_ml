@@ -13,12 +13,13 @@ import mlflow.sklearn
 from mlflow.models import infer_signature
 from mlflow.data.pandas_dataset import PandasDataset
 
+
 """MlFlow tracking"""
 # Set our tracking server uri for logging
 mlflow.set_tracking_uri(uri="http://localhost:5000")
 
-# # Create a new MLflow Experiment
-mlflow.set_experiment("MLflow Quickstart")
+# Create / start a new MLflow Experiment
+mlflow.set_experiment("MLflow_Fedterated")
 mlflow.start_run()
 
 # Take ROC_AUC, AUC, classification_report
@@ -77,7 +78,7 @@ def get_eval_func(X_test_global, y_test_global, g_model, num_rounds, params, Tes
         recall = round(classification.get('Fraud', {}).get('recall'), 2)
         f1_score = round(classification.get('Fraud', {}).get('f1-score'), 2)
 
-        # Log the metrics (last run)
+        # Log the metrics (final run only)
         if server_round == num_rounds:
             # Log metric, params
             mlflow.log_metric("precision", precision)
@@ -98,11 +99,9 @@ def get_eval_func(X_test_global, y_test_global, g_model, num_rounds, params, Tes
             registered_model_name="Gobal_flwr-sklearn-logisticregression", 
             input_example=X_test_global,
             )
-            mlflow.end_run()
-            # # End MLflow Experiment
+            mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
-    # Log the model
     return eval
 
 
@@ -133,7 +132,7 @@ def server_fn(context: Context):
 
     # Define strategy
     strategy = FedAvg(
-        fraction_fit=1.0,
+        fraction_fit=1.0,   # add this to config later 
         fraction_evaluate=1.0,
         min_available_clients=2,
         initial_parameters=initial_parameters,
