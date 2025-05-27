@@ -48,13 +48,12 @@ class FlowerClient(NumPyClient):
         precision, recall, thresholds = precision_recall_curve(y_labels, X_preds)
         ROC_AUC = roc_auc_score(y_labels, X_preds)
         AUC = auc(recall, precision)
-        # Convert probabilities to binary class predictions
-        y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
-        # print ("precision: ",precision[0])
-        # print ("recall: ",recall[0])
-        # print ("y_pred: ",y_pred[0])
+
+        # y_pred = torch.tensor(X_preds, dtype=torch.int64)
+        # y_true = torch.tensor(y_labels, dtype=torch.int64)
+
         # Generate classification report
-        classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
+        classification = classification_report(X_preds, y_labels, target_names=['Not Fraud', 'Fraud'], output_dict=True)
         # Dict to json
         classification_str = json.dumps(classification)
         return loss, len(self.testloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str}
