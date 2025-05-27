@@ -16,13 +16,13 @@ from mlflow.data.pandas_dataset import PandasDataset
 import torch
 
 
-# """MlFlow tracking"""
-# # Set our tracking server uri for logging
-# mlflow.set_tracking_uri(uri="http://localhost:5000")
+"""MlFlow tracking"""
+# Set our tracking server uri for logging
+mlflow.set_tracking_uri(uri="http://localhost:5000")
 
-# # Create / start a new MLflow Experiment
-# mlflow.set_experiment("MLflow Quickstart")
-# mlflow.start_run(run_name = "Gobal_flwr-torch-lstm")
+# Create / start a new MLflow Experiment
+mlflow.set_experiment("MLflow Quickstart")
+mlflow.start_run(run_name = "Gobal_flwr-torch-lstm")
 
 ## Hyper-parameters 
 input_size = 16 # dataset collumns
@@ -89,8 +89,7 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
         # print ("precision: ",precision[0])
         # print ("recall: ",recall[0])
-        print ("y_labels: ",y_labels[32])
-        print ("y_pred: ",y_pred[32])
+        # print ("y_pred: ",y_pred[0])
         # Generate classification report
         classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
 
@@ -100,28 +99,28 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         recall = round(classification.get('Fraud', {}).get('recall'), 2)
         f1_score = round(classification.get('Fraud', {}).get('f1-score'), 2)
 
-        # # Log the metrics (final run only)
-        # if server_round == num_rounds:
-        #     # Log metric, params
-        #     mlflow.log_metric("precision", precision)
-        #     mlflow.log_metric("recall", recall)
-        #     mlflow.log_metric("f1-score", f1_score)
-        #     mlflow.log_metric("ROC_AUC", ROC_AUC)
-        #     mlflow.log_metric("AUC", AUC)
-        #     mlflow.log_metric("Loss", loss)
-        #     mlflow.log_params(params)
-        #     # Log test dataset
-        #     mlflow.log_input(Test_ds, context="testing")
-        #     # Log the model
-        #     signature = infer_signature(X_test_global, y_pred)
-        #     mlflow.sklearn.log_model(
-        #     sk_model=g_model, 
-        #     artifact_path="G_model", 
-        #     signature=signature, 
-        #     registered_model_name="Gobal_flwr-torch-lstm", 
-        #     input_example=X_test_global,
-        #     )
-        #     mlflow.end_run()    # End MLflow logging
+        # Log the metrics (final run only)
+        if server_round == num_rounds:
+            # Log metric, params
+            mlflow.log_metric("precision", precision)
+            mlflow.log_metric("recall", recall)
+            mlflow.log_metric("f1-score", f1_score)
+            mlflow.log_metric("ROC_AUC", ROC_AUC)
+            mlflow.log_metric("AUC", AUC)
+            mlflow.log_metric("Loss", loss)
+            mlflow.log_params(params)
+            # Log test dataset
+            mlflow.log_input(Test_ds, context="testing")
+            # Log the model
+            signature = infer_signature(X_test_global, X_preds)
+            mlflow.sklearn.log_model(
+            sk_model=g_model, 
+            artifact_path="G_model", 
+            signature=signature, 
+            registered_model_name="Gobal_flwr-torch-lstm", 
+            input_example=X_test_global,
+            )
+            mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
     return eval
@@ -142,6 +141,7 @@ def server_fn(context: Context):
     "hidden_size":hidden_size,
     "num_layers":num_layers,
     "num_classes":num_classes,
+    "num_classes":num_classes,
     }
     # Load model
     g_model = Net(input_size, hidden_size, num_layers, num_classes)
@@ -161,7 +161,7 @@ def server_fn(context: Context):
         min_available_clients=2,
         initial_parameters=parameters,
         evaluate_metrics_aggregation_fn=avg_metrics,
-        # evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
+        evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
     )
     config = ServerConfig(num_rounds=num_rounds)
 

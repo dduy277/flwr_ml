@@ -93,12 +93,12 @@ def test(net, testloader, device):
             y_test = y_test.to(device)
             loss += criterion(outputs, y_test).item()
 
-            predicted = torch.argmax(outputs, dim=1).cpu().numpy() # Hard predictions (1 or 0)
+            probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()  # Probability for the positive class
             # _, predicted = torch.max(outputs.data, 1)
-            all_X_preds.extend(predicted)
+            all_X_preds.extend(probs)
             all_y_labels.extend(y_test.cpu().numpy())
 
-            correct += (predicted == y_test.cpu().numpy()).sum()
+            correct += (torch.max(outputs.data, 1)[1] == y_test).sum().item()
     accuracy = correct / len(testloader)
     loss = loss / len(testloader)
     return loss, accuracy, all_X_preds, all_y_labels

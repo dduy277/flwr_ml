@@ -20,7 +20,7 @@ mlflow.set_tracking_uri(uri="http://localhost:5000")
 
 # Create / start a new MLflow Experiment
 mlflow.set_experiment("MLflow_Fedterated")
-mlflow.start_run(run_name = "Gobal_flwr-sklearn-logisticregression")
+mlflow.start_run()
 
 # Take ROC_AUC, AUC, classification_report
 def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
