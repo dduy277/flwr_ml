@@ -8,12 +8,12 @@ import json
 import pandas as pd
 from typing import List, Tuple
 from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
-from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
 import mlflow
 import mlflow.sklearn
 from mlflow.models import infer_signature
 from mlflow.data.pandas_dataset import PandasDataset
 import torch
+
 
 
 # """MlFlow tracking"""
@@ -24,6 +24,7 @@ import torch
 # mlflow.set_experiment("MLflow Quickstart")
 # mlflow.start_run(run_name = "Gobal_flwr-torch-lstm")
 
+
 ## Hyper-parameters 
 input_size = 16 # dataset collumns
 hidden_size = 1
@@ -33,6 +34,7 @@ num_classes = 2 # num y class
 
 # Get device (need to be global ?)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 
 # Take ROC_AUC, AUC, classification_report
 def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
@@ -141,8 +143,8 @@ def server_fn(context: Context):
     "hidden_size":hidden_size,
     "num_layers":num_layers,
     "num_classes":num_classes,
-    "num_classes":num_classes,
     }
+
     # Load model
     g_model = Net(input_size, hidden_size, num_layers, num_classes)
 
@@ -161,7 +163,7 @@ def server_fn(context: Context):
         min_available_clients=2,
         initial_parameters=parameters,
         evaluate_metrics_aggregation_fn=avg_metrics,
-        # evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
+        evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
     )
     config = ServerConfig(num_rounds=num_rounds)
 
