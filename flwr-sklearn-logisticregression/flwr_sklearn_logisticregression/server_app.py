@@ -18,9 +18,10 @@ from mlflow.data.pandas_dataset import PandasDataset
 # Set our tracking server uri for logging
 mlflow.set_tracking_uri(uri="http://localhost:5000")
 
+
 # Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow_Fedterated")
-mlflow.start_run()
+mlflow.set_experiment("MLflow Quickstart")
+mlflow.start_run(run_name = "Gobal_flwr-sklearn-logisticregression")
 
 # Take ROC_AUC, AUC, classification_report
 def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
@@ -61,7 +62,7 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
 
 
 # Evaluates the global mode
-def get_eval_func(X_test_global, y_test_global, g_model, num_rounds, params, Test_ds):
+def get_eval_func(X_test_global, y_test_global, g_model, num_rounds, params, Test_ds, input_example):
     """Return a callback that evaluates the global model"""
     def eval(server_round, parameters_ndarrays, config): # server_round == current round
         set_model_params(g_model, parameters_ndarrays)
@@ -97,7 +98,7 @@ def get_eval_func(X_test_global, y_test_global, g_model, num_rounds, params, Tes
             artifact_path="G_model", 
             signature=signature, 
             registered_model_name="Gobal_flwr-sklearn-logisticregression", 
-            input_example=X_test_global,
+            input_example=input_example.iloc[[0]],
             )
             mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
@@ -128,6 +129,7 @@ def server_fn(context: Context):
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
     X_test_global = df_test.drop('Class', axis=1).values
     y_test_global = df_test['Class'].values
+    input_example = df_test.drop('Class', axis=1)
     Test_ds: PandasDataset = mlflow.data.from_pandas(df_test, targets="Class") # for MLflow
 
     # Define strategy
@@ -137,7 +139,7 @@ def server_fn(context: Context):
         min_available_clients=2,
         initial_parameters=initial_parameters,
         evaluate_metrics_aggregation_fn=avg_metrics,
-        evaluate_fn=get_eval_func(X_test_global, y_test_global, model, num_rounds, params, Test_ds),
+        evaluate_fn=get_eval_func(X_test_global, y_test_global, model, num_rounds, params, Test_ds, input_example),
     )
     config = ServerConfig(num_rounds=num_rounds)
 

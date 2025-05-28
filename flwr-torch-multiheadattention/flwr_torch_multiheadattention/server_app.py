@@ -13,11 +13,18 @@ import mlflow.sklearn
 from mlflow.models import infer_signature
 from mlflow.data.pandas_dataset import PandasDataset
 import torch
+import logging
+
 
 
 """MlFlow tracking"""
 # Set our tracking server uri for logging
 mlflow.set_tracking_uri(uri="http://localhost:5000")
+
+# Set log level to debugging
+# # (MLflow can't verifile input data, so turm off the debug for now)
+logger = logging.getLogger("mlflow")
+logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
 mlflow.set_experiment("MLflow Quickstart")
@@ -78,6 +85,7 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         set_weights(g_model, parameters_ndarrays)
         X_test_global = valloader.drop('Class', axis=1).values
         y_test_global = valloader['Class'].values
+        input_example = valloader.drop('Class', axis=1)
         # Eval
         loss, accuracy, X_preds, y_labels= test(g_model, valloader, device)
         # Precision-Recall curve and ROC-AUC score
@@ -86,9 +94,6 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         AUC = auc(recall, precision)
         # Convert probabilities to binary class predictions
         y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
-        # print ("precision: ",precision[0])
-        # print ("recall: ",recall[0])
-        # print ("y_pred: ",y_pred[0])
         # Generate classification report
         classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
 
@@ -111,13 +116,13 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
             # Log test dataset
             mlflow.log_input(Test_ds, context="testing")
             # Log the model
-            signature = infer_signature(X_test_global, X_preds)
-            mlflow.sklearn.log_model(
-            sk_model=g_model, 
+            signature = infer_signature(X_test_global, y_pred)
+            mlflow.pytorch.log_model(
+            pytorch_model=g_model, 
             artifact_path="G_model", 
-            signature=signature, 
+            signature=signature,
             registered_model_name="Gobal_flwr-torch-MultiheadAttention", 
-            input_example=X_test_global,
+            input_example= input_example.iloc[[0]],
             )
             mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
@@ -148,6 +153,7 @@ def server_fn(context: Context):
     valloader = pd.read_csv('../ML/CSV/df_test_3.csv')
     valloader.drop("Unnamed: 0", axis=1, inplace=True)
     valloader = valloader.astype('float32')
+    
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
     # Split the on edge data: 80% train, 20% test
     Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="Class") # for MLflow

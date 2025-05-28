@@ -81,6 +81,7 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         set_weights(g_model, parameters_ndarrays)
         X_test_global = valloader.drop('Class', axis=1).values
         y_test_global = valloader['Class'].values
+        input_example = valloader.drop('Class', axis=1)
         # Eval
         loss, accuracy, X_preds, y_labels= test(g_model, valloader, device)
         # Precision-Recall curve and ROC-AUC score
@@ -115,12 +116,12 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
             mlflow.log_input(Test_ds, context="testing")
             # Log the model
             signature = infer_signature(X_test_global, X_preds)
-            mlflow.sklearn.log_model(
-            sk_model=g_model, 
+            mlflow.pytorch.log_model(
+            pytorch_model=g_model, 
             artifact_path="G_model", 
             signature=signature, 
             registered_model_name="Gobal_flwr-torch-lstm", 
-            input_example=X_test_global,
+            input_example=input_example.iloc[[0]],
             )
             mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
