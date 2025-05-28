@@ -8,7 +8,6 @@ import json
 import pandas as pd
 from typing import List, Tuple
 from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
-from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
 import mlflow
 import mlflow.sklearn
 from mlflow.models import infer_signature
@@ -16,13 +15,15 @@ from mlflow.data.pandas_dataset import PandasDataset
 import torch
 
 
-"""MlFlow tracking"""
-# Set our tracking server uri for logging
-mlflow.set_tracking_uri(uri="http://localhost:5000")
 
-# Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow Quickstart")
-mlflow.start_run(run_name = "Gobal_flwr-torch-lstm")
+# """MlFlow tracking"""
+# # Set our tracking server uri for logging
+# mlflow.set_tracking_uri(uri="http://localhost:5000")
+
+# # Create / start a new MLflow Experiment
+# mlflow.set_experiment("MLflow Quickstart")
+# mlflow.start_run(run_name = "Gobal_flwr-torch-lstm")
+
 
 ## Hyper-parameters 
 input_size = 16 # dataset collumns
@@ -33,6 +34,7 @@ num_classes = 2 # num y class
 
 # Get device (need to be global ?)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 
 # Take ROC_AUC, AUC, classification_report
 def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
@@ -141,8 +143,8 @@ def server_fn(context: Context):
     "hidden_size":hidden_size,
     "num_layers":num_layers,
     "num_classes":num_classes,
-    "num_classes":num_classes,
     }
+
     # Load model
     g_model = Net(input_size, hidden_size, num_layers, num_classes)
 

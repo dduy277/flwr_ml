@@ -7,7 +7,7 @@ from flwr.common import Context
 from flwr_torch_lstm.task import Net, get_weights, load_data, set_weights, test, train
 import json
 from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, classification_report
-
+import numpy as np
 
 
 ## Hyper-parameters 
@@ -42,7 +42,6 @@ class FlowerClient(NumPyClient):
 
     def evaluate(self, parameters, config):
         set_weights(self.net, parameters)
-        # Eval
         loss, accuracy, X_preds, y_labels= test(self.net, self.testloader, self.device)
         # Precision-Recall curve and ROC-AUC score
         precision, recall, thresholds = precision_recall_curve(y_labels, X_preds)
@@ -50,11 +49,19 @@ class FlowerClient(NumPyClient):
         AUC = auc(recall, precision)
         # Convert probabilities to binary class predictions
         y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
+        print ("HERE", X_preds[1])
+        print ("HERE2", X_preds[2])
+        print ("HERE3", X_preds[3])
+        print ("HERE4", y_labels[1])
+        print ("HERE5", y_labels[2])
+        print ("HERE6", y_labels[3])
         # print ("precision: ",precision[0])
         # print ("recall: ",recall[0])
         # print ("y_pred: ",y_pred[0])
         # Generate classification report
         classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
+        # print("y_labels:", np.unique(y_labels, return_counts=True))
+        # print("y_pred:", np.unique(y_pred, return_counts=True))
         # Dict to json
         classification_str = json.dumps(classification)
         return loss, len(self.testloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str}
