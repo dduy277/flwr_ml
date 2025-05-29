@@ -146,17 +146,17 @@ def server_fn(context: Context):
     "num_heads": num_heads,
     }
     
-    # # Load model
-    # g_model = Net(input_dim, dim_model, num_classes, num_heads)
+    # Load model
+    g_model = Net(input_dim, dim_model, num_classes, num_heads)
 
-    # # # Load global test set
-    # valloader = pd.read_csv('../ML/CSV/df_test_2.csv')
-    # valloader.drop("Unnamed: 0", axis=1, inplace=True)
-    # valloader = valloader.astype('float32')
+    # # Load global test set
+    valloader = pd.read_csv('../ML/CSV/df_test_2.csv')
+    valloader.drop("Unnamed: 0", axis=1, inplace=True)
+    valloader = valloader.astype('float32')
     
-    # # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
-    # # Split the on edge data: 80% train, 20% test
-    # Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="isFraud") # for MLflow
+    # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
+    # Split the on edge data: 80% train, 20% test
+    Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="isFraud") # for MLflow
 
 
     # Define strategy
@@ -166,7 +166,7 @@ def server_fn(context: Context):
         min_available_clients=2,
         initial_parameters=parameters,
         evaluate_metrics_aggregation_fn=avg_metrics,
-        # evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
+        evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
     )
     config = ServerConfig(num_rounds=num_rounds)
 
