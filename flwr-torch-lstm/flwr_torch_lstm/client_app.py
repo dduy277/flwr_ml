@@ -49,12 +49,9 @@ class FlowerClient(NumPyClient):
         AUC = auc(recall, precision)
         # Convert probabilities to binary class predictions
         y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
-        print ("HERE", X_preds[1])
-        print ("HERE2", X_preds[2])
-        print ("HERE3", X_preds[3])
-        print ("HERE4", y_labels[1])
-        print ("HERE5", y_labels[2])
-        print ("HERE6", y_labels[3])
+        print ("X_preds", X_preds[1])
+        print ("X_preds2", X_preds[2])
+        print ("X_preds3", X_preds[3])
         # print ("precision: ",precision[0])
         # print ("recall: ",recall[0])
         # print ("y_pred: ",y_pred[0])

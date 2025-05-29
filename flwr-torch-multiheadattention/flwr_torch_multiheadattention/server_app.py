@@ -17,18 +17,18 @@ import logging
 
 
 
-"""MlFlow tracking"""
-# Set our tracking server uri for logging
-mlflow.set_tracking_uri(uri="http://localhost:5000")
+# """MlFlow tracking"""
+# # Set our tracking server uri for logging
+# mlflow.set_tracking_uri(uri="http://localhost:5000")
 
-# Set log level to debugging
-# # (MLflow can't verifile input data, so turm off the debug for now)
-logger = logging.getLogger("mlflow")
-logger.setLevel(logging.NOTSET)
+# # Set log level to debugging
+# # # (MLflow can't verifile input data, so turm off the debug for now)
+# logger = logging.getLogger("mlflow")
+# logger.setLevel(logging.NOTSET)
 
-# Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow Quickstart")
-mlflow.start_run(run_name = "Gobal_flwr-torch-MultiheadAttention")
+# # Create / start a new MLflow Experiment
+# mlflow.set_experiment("MLflow Quickstart")
+# mlflow.start_run(run_name = "Gobal_flwr-torch-MultiheadAttention")
 
 
 ## Hyper-parameters 
@@ -83,9 +83,9 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
     """Return a callback that evaluates the global model"""
     def eval(server_round, parameters_ndarrays, config): # server_round == current round
         set_weights(g_model, parameters_ndarrays)
-        X_test_global = valloader.drop('Class', axis=1).values
-        y_test_global = valloader['Class'].values
-        input_example = valloader.drop('Class', axis=1)
+        X_test_global = valloader.drop('isFraud', axis=1).values
+        y_test_global = valloader['isFraud'].values
+        input_example = valloader.drop('isFraud', axis=1)
         # Eval
         loss, accuracy, X_preds, y_labels= test(g_model, valloader, device)
         # Precision-Recall curve and ROC-AUC score
@@ -103,28 +103,28 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         recall = round(classification.get('Fraud', {}).get('recall'), 2)
         f1_score = round(classification.get('Fraud', {}).get('f1-score'), 2)
 
-        # Log the metrics (final run only)
-        if server_round == num_rounds:
-            # Log metric, params
-            mlflow.log_metric("precision", precision)
-            mlflow.log_metric("recall", recall)
-            mlflow.log_metric("f1-score", f1_score)
-            mlflow.log_metric("ROC_AUC", ROC_AUC)
-            mlflow.log_metric("AUC", AUC)
-            mlflow.log_metric("Loss", loss)
-            mlflow.log_params(params)
-            # Log test dataset
-            mlflow.log_input(Test_ds, context="testing")
-            # Log the model
-            signature = infer_signature(X_test_global, y_pred)
-            mlflow.pytorch.log_model(
-            pytorch_model=g_model, 
-            artifact_path="G_model", 
-            signature=signature,
-            registered_model_name="Gobal_flwr-torch-MultiheadAttention", 
-            input_example= input_example.iloc[[0]],
-            )
-            mlflow.end_run()    # End MLflow logging
+        # # Log the metrics (final run only)
+        # if server_round == num_rounds:
+        #     # Log metric, params
+        #     mlflow.log_metric("precision", precision)
+        #     mlflow.log_metric("recall", recall)
+        #     mlflow.log_metric("f1-score", f1_score)
+        #     mlflow.log_metric("ROC_AUC", ROC_AUC)
+        #     mlflow.log_metric("AUC", AUC)
+        #     mlflow.log_metric("Loss", loss)
+        #     mlflow.log_params(params)
+        #     # Log test dataset
+        #     mlflow.log_input(Test_ds, context="testing")
+        #     # Log the model
+        #     signature = infer_signature(X_test_global, y_pred)
+        #     mlflow.pytorch.log_model(
+        #     pytorch_model=g_model, 
+        #     artifact_path="G_model", 
+        #     signature=signature,
+        #     registered_model_name="Gobal_flwr-torch-MultiheadAttention", 
+        #     input_example= input_example.iloc[[0]],
+        #     )
+        #     mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
     return eval
@@ -146,17 +146,17 @@ def server_fn(context: Context):
     "num_heads": num_heads,
     }
     
-    # Load model
-    g_model = Net(input_dim, dim_model, num_classes, num_heads)
+    # # Load model
+    # g_model = Net(input_dim, dim_model, num_classes, num_heads)
 
-    # # Load global test set
-    valloader = pd.read_csv('../ML/CSV/df_test_3.csv')
-    valloader.drop("Unnamed: 0", axis=1, inplace=True)
-    valloader = valloader.astype('float32')
+    # # # Load global test set
+    # valloader = pd.read_csv('../ML/CSV/df_test_2.csv')
+    # valloader.drop("Unnamed: 0", axis=1, inplace=True)
+    # valloader = valloader.astype('float32')
     
-    # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
-    # Split the on edge data: 80% train, 20% test
-    Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="Class") # for MLflow
+    # # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
+    # # Split the on edge data: 80% train, 20% test
+    # Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="isFraud") # for MLflow
 
 
     # Define strategy
@@ -166,7 +166,7 @@ def server_fn(context: Context):
         min_available_clients=2,
         initial_parameters=parameters,
         evaluate_metrics_aggregation_fn=avg_metrics,
-        evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
+        # evaluate_fn=get_eval_func(valloader, g_model, num_rounds, params, Test_ds),
     )
     config = ServerConfig(num_rounds=num_rounds)
 

@@ -102,28 +102,28 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         recall = round(classification.get('Fraud', {}).get('recall'), 2)
         f1_score = round(classification.get('Fraud', {}).get('f1-score'), 2)
 
-        # Log the metrics (final run only)
-        if server_round == num_rounds:
-            # Log metric, params
-            mlflow.log_metric("precision", precision)
-            mlflow.log_metric("recall", recall)
-            mlflow.log_metric("f1-score", f1_score)
-            mlflow.log_metric("ROC_AUC", ROC_AUC)
-            mlflow.log_metric("AUC", AUC)
-            mlflow.log_metric("Loss", loss)
-            mlflow.log_params(params)
-            # Log test dataset
-            mlflow.log_input(Test_ds, context="testing")
-            # Log the model
-            signature = infer_signature(X_test_global, X_preds)
-            mlflow.pytorch.log_model(
-            pytorch_model=g_model, 
-            artifact_path="G_model", 
-            signature=signature, 
-            registered_model_name="Gobal_flwr-torch-lstm", 
-            input_example=input_example.iloc[[0]],
-            )
-            mlflow.end_run()    # End MLflow logging
+        # # Log the metrics (final run only)
+        # if server_round == num_rounds:
+        #     # Log metric, params
+        #     mlflow.log_metric("precision", precision)
+        #     mlflow.log_metric("recall", recall)
+        #     mlflow.log_metric("f1-score", f1_score)
+        #     mlflow.log_metric("ROC_AUC", ROC_AUC)
+        #     mlflow.log_metric("AUC", AUC)
+        #     mlflow.log_metric("Loss", loss)
+        #     mlflow.log_params(params)
+        #     # Log test dataset
+        #     mlflow.log_input(Test_ds, context="testing")
+        #     # Log the model
+        #     signature = infer_signature(X_test_global, X_preds)
+        #     mlflow.pytorch.log_model(
+        #     pytorch_model=g_model, 
+        #     artifact_path="G_model", 
+        #     signature=signature, 
+        #     registered_model_name="Gobal_flwr-torch-lstm", 
+        #     input_example=input_example.iloc[[0]],
+        #     )
+        #     mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
     return eval
