@@ -14,14 +14,14 @@ from mlflow.models import infer_signature
 from mlflow.data.pandas_dataset import PandasDataset
 
 
-"""MlFlow tracking"""
-# Set our tracking server uri for logging
-mlflow.set_tracking_uri(uri="http://localhost:5000")
+# """MlFlow tracking"""
+# # Set our tracking server uri for logging
+# mlflow.set_tracking_uri(uri="http://localhost:5000")
 
+# # Create / start a new MLflow Experiment
+# mlflow.set_experiment("MLflow Quickstart")
+# mlflow.start_run(run_name = "Gobal_flwr-sklearn-logisticregression")
 
-# Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow Quickstart")
-mlflow.start_run(run_name = "Gobal_flwr-sklearn-logisticregression")
 
 # Take ROC_AUC, AUC, classification_report
 def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
@@ -79,28 +79,28 @@ def get_eval_func(X_test_global, y_test_global, g_model, num_rounds, params, Tes
         recall = round(classification.get('Fraud', {}).get('recall'), 2)
         f1_score = round(classification.get('Fraud', {}).get('f1-score'), 2)
 
-        # Log the metrics (final run only)
-        if server_round == num_rounds:
-            # Log metric, params
-            mlflow.log_metric("precision", precision)
-            mlflow.log_metric("recall", recall)
-            mlflow.log_metric("f1-score", f1_score)
-            mlflow.log_metric("ROC_AUC", ROC_AUC)
-            mlflow.log_metric("AUC", AUC)
-            mlflow.log_metric("Loss", loss)
-            mlflow.log_params(params)
-            # Log test dataset
-            mlflow.log_input(Test_ds, context="testing")
-            # Log the model
-            signature = infer_signature(X_test_global, g_model.predict(X_test_global))
-            mlflow.sklearn.log_model(
-            sk_model=g_model, 
-            artifact_path="G_model", 
-            signature=signature, 
-            registered_model_name="Gobal_flwr-sklearn-logisticregression", 
-            input_example=input_example.iloc[[0]],
-            )
-            mlflow.end_run()    # End MLflow logging
+        # # Log the metrics (final run only)
+        # if server_round == num_rounds:
+        #     # Log metric, params
+        #     mlflow.log_metric("precision", precision)
+        #     mlflow.log_metric("recall", recall)
+        #     mlflow.log_metric("f1-score", f1_score)
+        #     mlflow.log_metric("ROC_AUC", ROC_AUC)
+        #     mlflow.log_metric("AUC", AUC)
+        #     mlflow.log_metric("Loss", loss)
+        #     mlflow.log_params(params)
+        #     # Log test dataset
+        #     mlflow.log_input(Test_ds, context="testing")
+        #     # Log the model
+        #     signature = infer_signature(X_test_global, g_model.predict(X_test_global))
+        #     mlflow.sklearn.log_model(
+        #     sk_model=g_model, 
+        #     artifact_path="G_model", 
+        #     signature=signature, 
+        #     registered_model_name="Gobal_flwr-sklearn-logisticregression", 
+        #     input_example=input_example.iloc[[0]],
+        #     )
+        #     mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
     return eval
