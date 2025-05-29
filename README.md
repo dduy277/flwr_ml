@@ -21,3 +21,9 @@ If outside of the project directory, use `flwr run <project directory name>` to 
 ```bash
 flwr run flwr-sklearn-LogisticRegression
 ```
+
+To run with MLflow, start up the local MLflow server
+
+```bash
+mlflow server --host 127.0.0.1 --port 5000
+```
