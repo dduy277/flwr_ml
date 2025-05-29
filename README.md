@@ -16,4 +16,8 @@ In the project directory (ex:`flwr-sklearn-LogisticRegression`), use `flwr run` 
 flwr run .
 ```
 
-If outside of the project directory, use `flwr run <project directory name>` (ex:`flwr run flwr-sklearn-LogisticRegression`) to run a local simulation:
+If outside of the project directory, use `flwr run <project directory name>` to run a local simulation:
+
+```bash
+flwr run flwr-sklearn-LogisticRegression
+```
