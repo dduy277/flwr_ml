@@ -32,3 +32,5 @@ To run with MLflow, start up the local MLflow server
 ```bash
 mlflow server --host 127.0.0.1 --port 5000
 ```
+
+Uncomment (#) MLflow in the code
