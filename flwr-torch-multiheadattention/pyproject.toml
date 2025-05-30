@@ -27,10 +27,11 @@ clientapp = "flwr_torch_multiheadattention.client_app:app"
 [tool.flwr.app.config]
 num-server-rounds = 3
 fraction-fit = 0.5
-local-epochs = 1
+local-epochs = 300
 
 [tool.flwr.federations]
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
 options.num-supernodes = 5
+options.backend.client-resources.num-cpus = 8
