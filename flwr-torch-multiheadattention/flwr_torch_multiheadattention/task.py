@@ -62,7 +62,7 @@ class Net(nn.Module):
 
 def load_data(partition_id: int, num_partitions: int):
     """Load partitioned dataset."""
-    df = pd.read_csv('../ML/CSV/df_train_3.csv')
+    df = pd.read_csv('CSV/df_train_3.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
     partitioner = IidPartitioner(num_partitions=num_partitions)
