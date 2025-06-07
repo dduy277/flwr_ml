@@ -24,7 +24,7 @@ serverapp = "flwr_sklearn_logisticregression.server_app:app"
 clientapp = "flwr_sklearn_logisticregression.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 2
+num-server-rounds = 200
 penalty = "l2"
 local-epochs = 50
 
@@ -34,3 +34,4 @@ default = "local-simulation"
 [tool.flwr.federations.local-simulation]
 options.num-supernodes = 4
 options.backend.client-resources.num-cpus = 8
+

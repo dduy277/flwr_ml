@@ -90,9 +90,6 @@ def test(net, testloader, device):
             loss += criterion(outputs, y_test).item()
 
             probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()  # Probability for the positive class
-            print ("probs ", probs[1])
-            print ("probs2 ", probs[2])
-            print ("probs3 ", probs[3])
             all_X_preds.extend(probs)
             all_y_labels.extend(y_test.cpu().numpy())
 

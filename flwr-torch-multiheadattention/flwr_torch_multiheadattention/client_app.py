@@ -22,7 +22,7 @@ class FlowerClient(NumPyClient):
         self.trainloader = trainloader
         self.valloader = valloader
         self.local_epochs = local_epochs
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("xpu:0" if torch.xpu.is_available() else "cpu")
         self.net.to(self.device)
 
     def fit(self, parameters, config):
@@ -52,7 +52,7 @@ class FlowerClient(NumPyClient):
         classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
         # Dict to json
         classification_str = json.dumps(classification)
-        return loss, len(self.valloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str}
+        return loss, len(self.valloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str, "Loss": loss}
         # return loss, len(self.valloader), {"accuracy": accuracy}
 
 

@@ -47,8 +47,8 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         ROC_AUC_temp = m.get("ROC_AUC")
         AUC_temp = m.get("AUC")
         # put metrics into array
-        ROC_AUC.append(ROC_AUC_temp)
-        AUC.append(AUC_temp)
+        ROC_AUC.append( round(ROC_AUC_temp, 4) )
+        AUC.append( round(AUC_temp, 4) )
         # average of metrics
         avg_ROC_AUC = round(sum(ROC_AUC) / len(ROC_AUC), 4)
         avg_AUC = round(sum(AUC) / len(AUC), 4)

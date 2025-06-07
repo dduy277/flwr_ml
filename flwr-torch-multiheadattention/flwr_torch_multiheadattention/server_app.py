@@ -39,12 +39,12 @@ num_heads = 4
 
 
 # Get device (need to be global ?)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("xpu:0" if torch.xpu.is_available() else "cpu")
 
 
 # Take ROC_AUC, AUC, classification_report
 def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    ROC_AUC=[]; AUC=[]; precision=[]; recall=[]; f1_score=[]
+    ROC_AUC=[]; AUC=[]; precision=[]; recall=[]; f1_score=[]; loss=[]
     """A func that aggregates metrics"""
 
     for _,m in metrics:
@@ -52,9 +52,11 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         # get metric
         ROC_AUC_temp = m.get("ROC_AUC")
         AUC_temp = m.get("AUC")
+        loss_temp=m.get("Loss")
         # put metrics into array
-        ROC_AUC.append(ROC_AUC_temp)
-        AUC.append(AUC_temp)
+        ROC_AUC.append( round(ROC_AUC_temp, 4) )
+        AUC.append( round(AUC_temp, 4) )
+        loss.append( round(loss_temp, 4) )
         # average of metrics
         avg_ROC_AUC = round(sum(ROC_AUC) / len(ROC_AUC), 4)
         avg_AUC = round(sum(AUC) / len(AUC), 4)
@@ -69,12 +71,13 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         precision.append(round(precision_temp, 2))
         recall.append(round(recall_temp, 2))
         f1_score.append(round(f1_score_temp, 2))
-        # average of metrics
+
+    # average of metrics
     avg_precision = round(sum(precision) / len(precision), 2)
     avg_recall = round(sum(recall) / len(recall), 2)
     avg_f1_score = round(sum(f1_score) / len(f1_score), 2)
 
-    return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
+    return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC, "loss": loss}
     # return {"avg_precision": avg_precision, "avg_recall": avg_recall, "avg_f1_score": avg_f1_score, "avg_ROC_AUC": avg_ROC_AUC, "avg_AUC": avg_AUC}
 
 

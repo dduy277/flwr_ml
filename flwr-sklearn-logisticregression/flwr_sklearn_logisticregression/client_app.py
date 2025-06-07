@@ -45,7 +45,7 @@ class FlowerClient(NumPyClient):
         classification = classification_report(self.y_test, self.model.predict(self.X_test), target_names=['Not Fraud', 'Fraud'], output_dict=True)
         # Dict to json
         classification_str = json.dumps(classification)
-        return loss, len(self.X_test), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str}
+        return loss, len(self.X_test), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str, "Loss": loss}
 
 
 def client_fn(context: Context):

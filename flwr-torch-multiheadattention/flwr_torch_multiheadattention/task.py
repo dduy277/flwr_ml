@@ -46,7 +46,7 @@ class MultiheadAttention(nn.Module):
         return out, values
 
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("xpu:0" if torch.xpu.is_available() else "cpu")
 
 class Net(nn.Module):
     def __init__(self, input_dim, dim_model, num_classes, num_heads):

@@ -12,3 +12,12 @@ CSV
 CSV/*
 Testing note/test.ipynb
 test.py
+datasets/cifar10/cifar-10-python.tar.gz
+datasets/cifar10/cifar-10-batches-py/batches.meta
+datasets/cifar10/cifar-10-batches-py/data_batch_1
+datasets/cifar10/cifar-10-batches-py/data_batch_2
+datasets/cifar10/cifar-10-batches-py/data_batch_3
+datasets/cifar10/cifar-10-batches-py/data_batch_4
+datasets/cifar10/cifar-10-batches-py/data_batch_5
+datasets/cifar10/cifar-10-batches-py/readme.html
+datasets/cifar10/cifar-10-batches-py/test_batch
