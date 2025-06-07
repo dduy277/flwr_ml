@@ -1,0 +1,28 @@
+All
+bỏ rsa, sym ra ko cần
+
+/home/zuy/OpenFHE/flower-fhe/src/simul.py
+start flwr
+- Thay = flwr run
+- ko dc thì rút ngắn lại
+
+/home/zuy/OpenFHE/flower-fhe/src/crypto/fhe_crypto.py
+Function fhe ở trg đây hết
+
+/home/zuy/OpenFHE/flower-fhe/src/fl_clients/fhe_client.py
+1 phần của cient.py
+- Bỏ thẳng vô clients.py
+
+/home/zuy/OpenFHE/flower-fhe/src/server.py
+- Thay flwr.client.start_server với flower-superlink
+
+/home/zuy/OpenFHE/flower-fhe/src/client.py
+- Thay flwr.client.start_client với flower-supernode
+
+src/utils/metrics.py
+Tính metrics (có thể dùng nhưng phải thay flwr cũ)
+- thay = metrics cũ
+
+/home/zuy/OpenFHE/flower-fhe/src/utils/args_validator.py
+vallidate 1 số cml input simul
+- bỏ sau khi rút ngắn simul
