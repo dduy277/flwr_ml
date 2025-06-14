@@ -94,6 +94,7 @@ def test(net, testloader, device):
         all_y_labels.extend(y_test.cpu().numpy())
         # accuracy
         correct = (torch.max(outputs.data, 1)[1] == y_test).sum().item()
+    loss = loss / len(testloader)
     accuracy = correct / len(testloader)
     return loss, accuracy, np.array(all_X_preds), np.array(all_y_labels)
 

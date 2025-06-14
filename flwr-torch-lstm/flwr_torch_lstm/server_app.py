@@ -27,7 +27,7 @@ logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
 mlflow.set_experiment("MLflow Quickstart")
-mlflow.start_run(run_name = "Gobal_flwr-torch-lstm_3.1", log_system_metrics=True)
+mlflow.start_run(run_name = "Gobal_flwr-torch-lstm_3.2", log_system_metrics=True)
 
 
 ## Hyper-parameters 
