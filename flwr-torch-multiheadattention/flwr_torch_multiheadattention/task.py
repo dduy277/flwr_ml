@@ -9,8 +9,8 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 from datasets import Dataset
-from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
 import math
+
 
 
 def scaled_dot_product(q, k, v, mask=None):

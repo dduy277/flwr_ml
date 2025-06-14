@@ -12,8 +12,6 @@ from datasets import Dataset
 
 
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 class Net(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, num_classes):
         super(Net, self).__init__()
@@ -21,18 +19,19 @@ class Net(nn.Module):
         self.hidden_size = hidden_size
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, num_classes)
+        
     def forward(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        out, _ = self.lstm(x,(h0,c0))   # out = batch_size, seq_legnth, hidden_size
-        out = out [:, -1, :]
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        out, _ = self.lstm(x, (h0, c0))   # out = batch_size, seq_length, hidden_size
+        out = out[:, -1, :]
         out = self.fc(out)
         return out
  
 
 def load_data(partition_id: int, num_partitions: int):
-    """Load partition df_3 data."""
-    df = pd.read_csv('CSV/df_train_3.csv')
+    """Load partition dataset"""
+    df = pd.read_csv('/home/zuy/OpenFHE/flower-fhe/CSV/df_train_3.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
     partitioner = IidPartitioner(num_partitions=num_partitions)
@@ -41,7 +40,7 @@ def load_data(partition_id: int, num_partitions: int):
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
     # Split the data: 80% train, 20% test
-    trainloader, testloader= train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
+    trainloader, testloader = train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
     return trainloader, testloader
 
 
