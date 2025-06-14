@@ -24,7 +24,7 @@ serverapp = "flwr_sklearn_logisticregression.server_app:app"
 clientapp = "flwr_sklearn_logisticregression.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 200
+num-server-rounds = 3
 penalty = "l2"
 local-epochs = 50
 

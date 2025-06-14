@@ -26,3 +26,12 @@ Tính metrics (có thể dùng nhưng phải thay flwr cũ)
 /home/zuy/OpenFHE/flower-fhe/src/utils/args_validator.py
 vallidate 1 số cml input simul
 - bỏ sau khi rút ngắn simul
+
+1 extrac parameters tu models da training r
+2 bieu dien dang su dung (eg vector, nested list, giu nguyen cau truc extrac models) [[r1,r2],[r3,r4,r5,r6]]
+3 fhe ma hoa tung he so 1      
+
+       client 1                [[r1,r2],[r3,r4,r5,r6]] ->fhe [[c1,c2],[c3,c4,c5,c6]]
+       client 2                [[t1,t2],[t3,t4,t5,t6]] ->fhe [[d1,d2],[d3,d4,d5,d6]]
+       center                  [[(c1+d1)/2,(c2+d2)/2],[(c3+d3)/2,(c4+d4)/2],...] =[[w1,w2],[w3,w4,w5,w6]]
+       decryp user             decryp-fhe(c1+d1/2)=[r1+t1/2], ...
