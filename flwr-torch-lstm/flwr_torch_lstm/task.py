@@ -47,55 +47,54 @@ def load_data(partition_id: int, num_partitions: int):
 
 
 def train(net, trainloader, epochs, device):
-    """Train the model on the training set."""
+    """Train the model on the training set"""
     net.to(device)  # move model to GPU if available
     criterion = torch.nn.CrossEntropyLoss().to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
     net.train()
     running_loss = 0.0
-    for _ in range(epochs):
-        for i in trainloader:
-            X_train = trainloader.drop('Class', axis=1).values
-            X_train = torch.from_numpy(np.expand_dims(X_train, axis=1))  
-            y_train = torch.from_numpy(trainloader['Class'].values).long()
+    for epoch in range(epochs):
+        # Extract features and labels once per epoch
+        X_train = trainloader.drop('Class', axis=1).values
+        X_train = torch.from_numpy(np.expand_dims(X_train, axis=1)).to(device)
+        y_train = torch.from_numpy(trainloader['Class'].values).long().to(device)
 
-            outputs = net(X_train.to(device))
-            y_train = y_train.to(device)
-            loss = criterion(outputs, y_train)
-            
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item()
+        # Forward pass
+        outputs = net(X_train)
+        loss = criterion(outputs, y_train)
+        
+        # Backward pass
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        running_loss += loss.item()
 
-    avg_trainloss = running_loss / len(trainloader)
+    avg_trainloss = running_loss / epochs
     return avg_trainloss
 
 
 def test(net, testloader, device):
-    """Validate the model on the test set."""
-    net.to(device)# move model to GPU if available
+    """Validate the model on the test set"""
+    net.to(device)  # move model to GPU if available
+    net.eval()  # Set to evaluation mode
     criterion = torch.nn.CrossEntropyLoss()
     correct, loss = 0, 0
     all_X_preds = []
     all_y_labels = []
     with torch.no_grad():
-        for i in testloader:
-            X_test = testloader.drop('Class', axis=1).values
-            X_test = torch.from_numpy(np.expand_dims(X_test, axis=1))
-            y_test = torch.from_numpy(testloader['Class'].values).long()
-            
-            outputs = net(X_test.to(device))
-            y_test = y_test.to(device)
-            loss += criterion(outputs, y_test).item()
-
-            probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()  # Probability for the positive class
-            all_X_preds.extend(probs)
-            all_y_labels.extend(y_test.cpu().numpy())
-
-            correct += (torch.max(outputs.data, 1)[1] == y_test).sum().item()
+        # Extract features and labels once
+        X_test = testloader.drop('Class', axis=1).values
+        X_test = torch.from_numpy(np.expand_dims(X_test, axis=1)).to(device)
+        y_test = torch.from_numpy(testloader['Class'].values).long().to(device)
+        outputs = net(X_test)
+        loss = criterion(outputs, y_test).item()
+        # Get probabilities for the positive class (class 1)
+        probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()
+        all_X_preds.extend(probs)
+        all_y_labels.extend(y_test.cpu().numpy())
+        # accuracy
+        correct = (torch.max(outputs.data, 1)[1] == y_test).sum().item()
     accuracy = correct / len(testloader)
-    loss = loss / len(testloader)
     return loss, accuracy, np.array(all_X_preds), np.array(all_y_labels)
 
 

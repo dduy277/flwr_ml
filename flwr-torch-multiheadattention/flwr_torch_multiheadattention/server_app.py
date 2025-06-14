@@ -7,9 +7,8 @@ from flwr_torch_multiheadattention.task import Net, get_weights, set_weights, te
 import json
 import pandas as pd
 from typing import List, Tuple
-from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
+from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, classification_report
 import mlflow
-import mlflow.sklearn
 from mlflow.models import infer_signature
 from mlflow.data.pandas_dataset import PandasDataset
 import torch
@@ -17,18 +16,18 @@ import logging
 
 
 
-# """MlFlow tracking"""
-# # Set our tracking server uri for logging
-# mlflow.set_tracking_uri(uri="http://localhost:5000")
+"""MlFlow tracking"""
+# Set our tracking server uri for logging
+mlflow.set_tracking_uri(uri="http://localhost:5000")
 
-# # Set log level to debugging
-# # # (MLflow can't verifile input data, so turm off the debug for now)
-# logger = logging.getLogger("mlflow")
-# logger.setLevel(logging.NOTSET)
+# Set log level
+# # (MLflow can't verifile input data, so turm off the debug for now)
+logger = logging.getLogger("mlflow")
+logger.setLevel(logging.NOTSET)
 
-# # Create / start a new MLflow Experiment
-# mlflow.set_experiment("MLflow Quickstart")
-# mlflow.start_run(run_name = "Gobal_flwr-torch-MultiheadAttention")
+# Create / start a new MLflow Experiment
+mlflow.set_experiment("MLflow Quickstart")
+mlflow.start_run(run_name = "Gobal_flwr-torch-MultiheadAttention_3", log_system_metrics=True)
 
 
 ## Hyper-parameters 
@@ -99,35 +98,33 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
         # Generate classification report
         classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
-
         ROC_AUC = round(ROC_AUC, 4)
         AUC = round(AUC, 4)
         precision = round(classification.get('Fraud', {}).get('precision'), 2)
         recall = round(classification.get('Fraud', {}).get('recall'), 2)
         f1_score = round(classification.get('Fraud', {}).get('f1-score'), 2)
-
-        # # Log the metrics (final run only)
-        # if server_round == num_rounds:
-        #     # Log metric, params
-        #     mlflow.log_metric("precision", precision)
-        #     mlflow.log_metric("recall", recall)
-        #     mlflow.log_metric("f1-score", f1_score)
-        #     mlflow.log_metric("ROC_AUC", ROC_AUC)
-        #     mlflow.log_metric("AUC", AUC)
-        #     mlflow.log_metric("Loss", loss)
-        #     mlflow.log_params(params)
-        #     # Log test dataset
-        #     mlflow.log_input(Test_ds, context="testing")
-        #     # Log the model
-        #     signature = infer_signature(X_test_global, y_pred)
-        #     mlflow.pytorch.log_model(
-        #     pytorch_model=g_model, 
-        #     artifact_path="G_model", 
-        #     signature=signature,
-        #     registered_model_name="Gobal_flwr-torch-MultiheadAttention", 
-        #     input_example= input_example.iloc[[0]],
-        #     )
-        #     mlflow.end_run()    # End MLflow logging
+        # Log metric, params
+        mlflow.log_metric("precision", precision, step=server_round)
+        mlflow.log_metric("recall", recall, step=server_round)
+        mlflow.log_metric("f1-score", f1_score, step=server_round)
+        mlflow.log_metric("ROC_AUC", ROC_AUC, step=server_round)
+        mlflow.log_metric("AUC", AUC, step=server_round)
+        mlflow.log_metric("Loss", loss, step=server_round)
+        mlflow.log_params(params)
+        # Final run only
+        if server_round == num_rounds:
+            # Log test dataset
+            mlflow.log_input(Test_ds, context="Testing")
+            # Log the model
+            signature = infer_signature(X_test_global, X_preds)
+            mlflow.pytorch.log_model(
+            pytorch_model=g_model, 
+            artifact_path="Gobal_model", 
+            signature=signature, 
+            registered_model_name="Gobal_flwr-torch-lstm", 
+            input_example=input_example.iloc[[0]],
+            )
+            mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
     return eval

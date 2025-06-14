@@ -55,7 +55,7 @@ class FlowerClient(NumPyClient):
         # print("y_pred:", np.unique(y_pred, return_counts=True))
         # Dict to json
         classification_str = json.dumps(classification)
-        return loss, len(self.testloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str}
+        return loss, len(self.testloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str, "Loss": loss}
         # return loss, len(self.testloader), {"accuracy": accuracy}
 
 
