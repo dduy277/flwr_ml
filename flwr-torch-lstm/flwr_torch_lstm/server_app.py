@@ -26,8 +26,8 @@ logger = logging.getLogger("mlflow")
 logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow Quickstart")
-mlflow.start_run(run_name = "Gobal_flwr-torch-lstm_3.2", log_system_metrics=True)
+mlflow.set_experiment("MLflow lstm")
+mlflow.start_run(run_name = "Gobal_flwr-torch-lstm_Global", log_system_metrics=True)
 
 
 ## Hyper-parameters 
@@ -46,7 +46,7 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     ROC_AUC=[]; AUC=[]; precision=[]; recall=[]; f1_score=[]; loss=[]
     """A func that aggregates metrics"""
 
-    for _,m in metrics:
+    for i,m in metrics:
         "Get ROC_AUC, AUC"
         # get metric
         ROC_AUC_temp = m.get("ROC_AUC")
@@ -59,6 +59,7 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         # average of metrics
         avg_ROC_AUC = round(sum(ROC_AUC) / len(ROC_AUC), 4)
         avg_AUC = round(sum(AUC) / len(AUC), 4)
+        avg_loss = sum(loss) / len(loss)
         "Get classification_str"
         # json to dict
         classification = json.loads(m["Classification_str"])
@@ -70,11 +71,28 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         precision.append(round(precision_temp, 2))
         recall.append(round(recall_temp, 2))
         f1_score.append(round(f1_score_temp, 2))
-
+        # Log client metric
+        mlflow.start_run(run_name = "Client_flwr-torch-lstm", nested=True)
+        mlflow.log_metric("precision", precision_temp)
+        mlflow.log_metric("recall", recall_temp)
+        mlflow.log_metric("f1-score", f1_score_temp)
+        mlflow.log_metric("ROC_AUC", ROC_AUC_temp)
+        mlflow.log_metric("AUC", AUC_temp)
+        mlflow.log_metric("Loss", loss_temp)
+        mlflow.end_run()    # End MLflow logging
     # average of metrics
     avg_precision = round(sum(precision) / len(precision), 2)
     avg_recall = round(sum(recall) / len(recall), 2)
     avg_f1_score = round(sum(f1_score) / len(f1_score), 2)
+    # Log client avg metric
+    mlflow.start_run(run_name = "Client_flwr-torch-lstm_avg", nested=True)
+    mlflow.log_metric("precision", avg_precision)
+    mlflow.log_metric("recall", avg_recall)
+    mlflow.log_metric("f1-score", avg_f1_score)
+    mlflow.log_metric("ROC_AUC", avg_ROC_AUC)
+    mlflow.log_metric("AUC", avg_AUC)
+    mlflow.log_metric("Loss", avg_loss)
+    mlflow.end_run()    # End MLflow logging
 
     # np.float64 doesn't affect anything, it looks ugly though.
     return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC, "loss": loss}
@@ -118,13 +136,13 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
             mlflow.log_input(Test_ds, context="Testing")
             # Log the model
             signature = infer_signature(X_test_global, X_preds)
-            mlflow.pytorch.log_model(
-            pytorch_model=g_model, 
-            artifact_path="Gobal_model", 
-            signature=signature, 
-            registered_model_name="Gobal_flwr-torch-lstm", 
-            input_example=input_example.iloc[[0]],
-            )
+            # mlflow.pytorch.log_model(
+            # pytorch_model=g_model, 
+            # artifact_path="Gobal_model", 
+            # signature=signature, 
+            # registered_model_name="Gobal_flwr-torch-lstm", 
+            # input_example=input_example.iloc[[0]],
+            # )
             mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
