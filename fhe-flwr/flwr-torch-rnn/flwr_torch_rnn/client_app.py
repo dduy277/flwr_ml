@@ -1,12 +1,12 @@
-"""flwr-torch-lstm: A Flower / PyTorch app."""
+"""flwr-torch-rnn: A Flower / PyTorch app."""
 
 import torch
 import pickle
 
 from flwr.client import ClientApp, NumPyClient
 from flwr.common import Context
-from flwr_torch_lstm.task import Net, get_weights, load_data, set_weights, test, train
-from flwr_torch_lstm.Crypto.fhe_crypto import FheCryptoAPI
+from flwr_torch_rnn.task import Net, get_weights, load_data, set_weights, test, train
+from flwr_torch_rnn.Crypto.fhe_crypto import FheCryptoAPI
 import json
 from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, classification_report
 
@@ -18,6 +18,8 @@ hidden_size = 1
 num_layers = 3
 num_classes = 2 # num y class
 
+
+# Define Flower Client and client_fn
 class FlowerClient(NumPyClient):
     def __init__(self, net, trainloader, valloader, local_epochs):
         self.net = net
@@ -96,7 +98,6 @@ class FlowerClient(NumPyClient):
             len(self.trainloader),
             {"train_loss": train_loss},
         )
-
 
     def evaluate(self, parameters, config):
         # Decrypt parameters if needed
