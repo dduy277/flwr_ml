@@ -38,7 +38,10 @@ num_classes = 2 # num y class
 
 
 # Get device (need to be global ?)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+if torch.xpu.is_available():    # for Intel GPU
+    device = torch.device("xpu:0")
+else:
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 # Take ROC_AUC, AUC, classification_report
@@ -136,13 +139,13 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
             mlflow.log_input(Test_ds, context="Testing")
             # Log the model
             signature = infer_signature(X_test_global, X_preds)
-            # mlflow.pytorch.log_model(
-            # pytorch_model=g_model, 
-            # artifact_path="Gobal_model", 
-            # signature=signature, 
-            # registered_model_name="Gobal_flwr-torch-lstm", 
-            # input_example=input_example.iloc[[0]],
-            # )
+            mlflow.pytorch.log_model(
+            pytorch_model=g_model, 
+            artifact_path="Gobal_model", 
+            signature=signature, 
+            registered_model_name="Gobal_flwr-torch-lstm", 
+            input_example=input_example.iloc[[0]],
+            )
             mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
