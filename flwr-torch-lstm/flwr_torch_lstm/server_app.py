@@ -49,7 +49,7 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     ROC_AUC=[]; AUC=[]; precision=[]; recall=[]; f1_score=[]; loss=[]
     """A func that aggregates metrics"""
 
-    for i,m in metrics:
+    for _,m in metrics:
         "Get ROC_AUC, AUC"
         # get metric
         ROC_AUC_temp = m.get("ROC_AUC")
@@ -58,7 +58,7 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         # put metrics into array
         ROC_AUC.append( round(ROC_AUC_temp, 4) )
         AUC.append( round(AUC_temp, 4) )
-        loss.append( round(loss_temp, 4) )
+        loss.append( loss_temp )
         # average of metrics
         avg_ROC_AUC = round(sum(ROC_AUC) / len(ROC_AUC), 4)
         avg_AUC = round(sum(AUC) / len(AUC), 4)

@@ -27,7 +27,7 @@ logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
 mlflow.set_experiment("MLflow Quickstart")
-mlflow.start_run(run_name = "Gobal_flwr-torch-MultiheadAttention_3.1", log_system_metrics=True)
+mlflow.start_run(run_name = "Gobal_flwr-torch-MultiheadAttention", log_system_metrics=True)
 
 
 ## Hyper-parameters 
@@ -38,7 +38,10 @@ num_heads = 4
 
 
 # Get device (need to be global ?)
-device = torch.device("xpu:0" if torch.xpu.is_available() else "cpu")
+if torch.xpu.is_available():    # for Intel GPU
+    device = torch.device("xpu:0")
+else:
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 # Take ROC_AUC, AUC, classification_report
@@ -55,10 +58,11 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         # put metrics into array
         ROC_AUC.append( round(ROC_AUC_temp, 4) )
         AUC.append( round(AUC_temp, 4) )
-        loss.append( round(loss_temp, 4) )
+        loss.append( loss_temp )
         # average of metrics
         avg_ROC_AUC = round(sum(ROC_AUC) / len(ROC_AUC), 4)
         avg_AUC = round(sum(AUC) / len(AUC), 4)
+        avg_loss = sum(loss) / len(loss)
         "Get classification_str"
         # json to dict
         classification = json.loads(m["Classification_str"])
@@ -66,6 +70,15 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         precision_temp = classification.get('Fraud', {}).get('precision')
         recall_temp = classification.get('Fraud', {}).get('recall')
         f1_score_temp = classification.get('Fraud', {}).get('f1-score')
+        # # Log client metric
+        # mlflow.start_run(run_name = "Client_flwr-torch-lstm", nested=True)
+        # mlflow.log_metric("precision", precision_temp)
+        # mlflow.log_metric("recall", recall_temp)
+        # mlflow.log_metric("f1-score", f1_score_temp)
+        # mlflow.log_metric("ROC_AUC", ROC_AUC_temp)
+        # mlflow.log_metric("AUC", AUC_temp)
+        # mlflow.log_metric("Loss", loss_temp)
+        # mlflow.end_run()    # End MLflow logging
         # put metrics into array
         precision.append(round(precision_temp, 2))
         recall.append(round(recall_temp, 2))
@@ -75,6 +88,15 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     avg_precision = round(sum(precision) / len(precision), 2)
     avg_recall = round(sum(recall) / len(recall), 2)
     avg_f1_score = round(sum(f1_score) / len(f1_score), 2)
+    # # Log client avg metric
+    # mlflow.start_run(run_name = "Client_flwr-torch-lstm_avg", nested=True)
+    # mlflow.log_metric("precision", avg_precision)
+    # mlflow.log_metric("recall", avg_recall)
+    # mlflow.log_metric("f1-score", avg_f1_score)
+    # mlflow.log_metric("ROC_AUC", avg_ROC_AUC)
+    # mlflow.log_metric("AUC", avg_AUC)
+    # mlflow.log_metric("Loss", avg_loss)
+    # mlflow.end_run()    # End MLflow logging
 
     return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC, "loss": loss}
     # return {"avg_precision": avg_precision, "avg_recall": avg_recall, "avg_f1_score": avg_f1_score, "avg_ROC_AUC": avg_ROC_AUC, "avg_AUC": avg_AUC}
@@ -121,7 +143,7 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
             pytorch_model=g_model, 
             artifact_path="Gobal_model", 
             signature=signature, 
-            registered_model_name="Gobal_flwr-torch-lstm", 
+            registered_model_name="Gobal_flwr-torch-MultiheadAttention", 
             input_example=input_example.iloc[[0]],
             )
             mlflow.end_run()    # End MLflow logging

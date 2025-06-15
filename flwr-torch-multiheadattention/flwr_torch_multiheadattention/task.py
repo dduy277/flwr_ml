@@ -101,30 +101,29 @@ def train(net, trainloader, epochs, device):
 
 
 def test(net, testloader, device):
-    """Validate the model on the test set."""
-    net.to(device)# move model to GPU if available
+    """Validate the model on the test set"""
+    net.to(device)  # move model to GPU if available
+    net.eval()  # Set to evaluation mode
     criterion = torch.nn.CrossEntropyLoss()
     correct, loss = 0, 0
     all_X_preds = []
     all_y_labels = []
     with torch.no_grad():
-        for i in testloader:
-            X_test = testloader.drop('Class', axis=1).values
-            X_test = torch.from_numpy(np.expand_dims(X_test, axis=2)).float()
-            y_test = torch.from_numpy(testloader['Class'].values).long()
-            
-            outputs = net(X_test.to(device))
-            y_test = y_test.to(device)
-            loss += criterion(outputs, y_test).item()
-
-            probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()  # Probability for the positive class
-            all_X_preds.extend(probs)
-            all_y_labels.extend(y_test.cpu().numpy())
-
-            correct += (torch.max(outputs.data, 1)[1] == y_test).sum().item()
-    accuracy = correct / len(testloader)
+        # Extract features and labels once
+        X_test = testloader.drop('Class', axis=1).values
+        X_test = torch.from_numpy(np.expand_dims(X_test, axis=1)).to(device)
+        y_test = torch.from_numpy(testloader['Class'].values).long().to(device)
+        outputs = net(X_test)
+        loss = criterion(outputs, y_test).item()
+        # Get probabilities for the positive class (class 1)
+        probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()
+        all_X_preds.extend(probs)
+        all_y_labels.extend(y_test.cpu().numpy())
+        # accuracy
+        correct = (torch.max(outputs.data, 1)[1] == y_test).sum().item()
     loss = loss / len(testloader)
-    return loss, accuracy, all_X_preds, all_y_labels
+    accuracy = correct / len(testloader)
+    return loss, accuracy, np.array(all_X_preds), np.array(all_y_labels)
 
 
 def test(net, testloader, device):
