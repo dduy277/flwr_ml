@@ -26,7 +26,7 @@ logger = logging.getLogger("mlflow")
 logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow lstm")
+mlflow.set_experiment("MLflow lstm df1")
 mlflow.start_run(run_name = "Gobal_flwr-torch-lstm", log_system_metrics=True)
 
 
@@ -83,6 +83,7 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         mlflow.log_metric("AUC", AUC_temp)
         mlflow.log_metric("Loss", loss_temp)
         mlflow.end_run()    # End MLflow logging
+
     # average of metrics
     avg_precision = round(sum(precision) / len(precision), 2)
     avg_recall = round(sum(recall) / len(recall), 2)
@@ -143,7 +144,7 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
             pytorch_model=g_model, 
             artifact_path="Gobal_model", 
             signature=signature, 
-            registered_model_name="Gobal_flwr-torch-lstm", 
+            registered_model_name="Gobal_flwr-torch-lstm_df1", 
             input_example=input_example.iloc[[0]],
             )
             mlflow.end_run()    # End MLflow logging
@@ -173,7 +174,7 @@ def server_fn(context: Context):
     g_model = Net(input_size, hidden_size, num_layers, num_classes)
 
     # # Load global test set
-    valloader = pd.read_csv('CSV/df_test_3.csv')
+    valloader = pd.read_csv('CSV/df_test_1.csv')
     valloader.drop("Unnamed: 0", axis=1, inplace=True)
     valloader = valloader.astype('float32')
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names

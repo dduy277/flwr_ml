@@ -25,12 +25,13 @@ serverapp = "flwr_torch_rnn.server_app:app"
 clientapp = "flwr_torch_rnn.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 4
+num-server-rounds = 10
 fraction-fit = 0.5
-local-epochs = 1
+local-epochs = 400
 
 [tool.flwr.federations]
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 5
+options.num-supernodes = 4
+options.backend.client-resources.num-cpus = 8

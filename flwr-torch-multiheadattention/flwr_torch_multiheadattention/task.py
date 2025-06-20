@@ -4,7 +4,7 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from flwr_datasets.partitioner import IidPartitioner
+from flwr_datasets.partitioner import IidPartitioner, DirichletPartitioner
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
@@ -46,8 +46,6 @@ class MultiheadAttention(nn.Module):
         return out, values
 
 
-device = torch.device("xpu:0" if torch.xpu.is_available() else "cpu")
-
 class Net(nn.Module):
     def __init__(self, input_dim, dim_model, num_classes, num_heads):
         super(Net, self).__init__()
@@ -62,10 +60,17 @@ class Net(nn.Module):
 
 def load_data(partition_id: int, num_partitions: int):
     """Load partitioned dataset."""
-    df = pd.read_csv('CSV/df_train_3.csv')
+    df = pd.read_csv('CSV/df_train_1.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
-    partitioner = IidPartitioner(num_partitions=num_partitions)
+    # partitioner = IidPartitioner(num_partitions=num_partitions)
+    partitioner = DirichletPartitioner(
+        num_partitions=num_partitions,
+        partition_by="Class",
+        alpha=2,
+        min_partition_size=10,
+        seed=42
+        )
     partitioner.dataset = dataset
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
@@ -98,32 +103,6 @@ def train(net, trainloader, epochs, device):
 
     avg_trainloss = running_loss / epochs
     return avg_trainloss
-
-
-def test(net, testloader, device):
-    """Validate the model on the test set"""
-    net.to(device)  # move model to GPU if available
-    net.eval()  # Set to evaluation mode
-    criterion = torch.nn.CrossEntropyLoss()
-    correct, loss = 0, 0
-    all_X_preds = []
-    all_y_labels = []
-    with torch.no_grad():
-        # Extract features and labels once
-        X_test = testloader.drop('Class', axis=1).values
-        X_test = torch.from_numpy(np.expand_dims(X_test, axis=1)).to(device)
-        y_test = torch.from_numpy(testloader['Class'].values).long().to(device)
-        outputs = net(X_test)
-        loss = criterion(outputs, y_test).item()
-        # Get probabilities for the positive class (class 1)
-        probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()
-        all_X_preds.extend(probs)
-        all_y_labels.extend(y_test.cpu().numpy())
-        # accuracy
-        correct = (torch.max(outputs.data, 1)[1] == y_test).sum().item()
-    loss = loss / len(testloader)
-    accuracy = correct / len(testloader)
-    return loss, accuracy, np.array(all_X_preds), np.array(all_y_labels)
 
 
 def test(net, testloader, device):

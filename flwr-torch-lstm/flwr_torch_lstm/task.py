@@ -4,15 +4,13 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from flwr_datasets.partitioner import IidPartitioner
+from flwr_datasets.partitioner import IidPartitioner, DirichletPartitioner
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 from datasets import Dataset
 
 
-
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Net(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, num_classes):
@@ -22,8 +20,8 @@ class Net(nn.Module):
         self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, num_classes)
     def forward(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         out, _ = self.lstm(x,(h0,c0))   # out = batch_size, seq_legnth, hidden_size
         out = out [:, -1, :]
         out = self.fc(out)
@@ -31,12 +29,18 @@ class Net(nn.Module):
  
 
 def load_data(partition_id: int, num_partitions: int):
-    """Load partition df_3 data."""
-    df = pd.read_csv('CSV/df_train_3.csv')
+    """Load partitioned dataset."""
+    df = pd.read_csv('CSV/df_train_1.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
-    partitioner = IidPartitioner(num_partitions=num_partitions)
-    # partitioner = DirichletPartitioner(num_partitions=num_partitions, partition_by="Class", alpha=10, min_partition_size=5)
+    # partitioner = IidPartitioner(num_partitions=num_partitions)
+    partitioner = DirichletPartitioner(
+        num_partitions=num_partitions,
+        partition_by="Class",
+        alpha=2,
+        min_partition_size=10,
+        seed=42
+        )
     partitioner.dataset = dataset
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
@@ -87,11 +91,10 @@ def test(net, testloader, device):
         y_test = torch.from_numpy(testloader['Class'].values).long().to(device)
         outputs = net(X_test)
         loss = criterion(outputs, y_test).item()
-        # Get probabilities for the positive class (class 1)
-        probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()
+        probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()   # Probability for the positive class
         all_X_preds.extend(probs)
         all_y_labels.extend(y_test.cpu().numpy())
-        # accuracy
+
         correct = (torch.max(outputs.data, 1)[1] == y_test).sum().item()
     loss = loss / len(testloader)
     accuracy = correct / len(testloader)

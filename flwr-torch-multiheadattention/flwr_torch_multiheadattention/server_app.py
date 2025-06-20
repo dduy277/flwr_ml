@@ -26,7 +26,7 @@ logger = logging.getLogger("mlflow")
 logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow Quickstart")
+mlflow.set_experiment("MLflow MultiheadAttention df1")
 mlflow.start_run(run_name = "Gobal_flwr-torch-MultiheadAttention", log_system_metrics=True)
 
 
@@ -70,33 +70,33 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         precision_temp = classification.get('Fraud', {}).get('precision')
         recall_temp = classification.get('Fraud', {}).get('recall')
         f1_score_temp = classification.get('Fraud', {}).get('f1-score')
-        # # Log client metric
-        # mlflow.start_run(run_name = "Client_flwr-torch-lstm", nested=True)
-        # mlflow.log_metric("precision", precision_temp)
-        # mlflow.log_metric("recall", recall_temp)
-        # mlflow.log_metric("f1-score", f1_score_temp)
-        # mlflow.log_metric("ROC_AUC", ROC_AUC_temp)
-        # mlflow.log_metric("AUC", AUC_temp)
-        # mlflow.log_metric("Loss", loss_temp)
-        # mlflow.end_run()    # End MLflow logging
         # put metrics into array
         precision.append(round(precision_temp, 2))
         recall.append(round(recall_temp, 2))
         f1_score.append(round(f1_score_temp, 2))
+        # Log client metric
+        mlflow.start_run(run_name = "Client_flwr-torch-MultiheadAttention", nested=True)
+        mlflow.log_metric("precision", precision_temp)
+        mlflow.log_metric("recall", recall_temp)
+        mlflow.log_metric("f1-score", f1_score_temp)
+        mlflow.log_metric("ROC_AUC", ROC_AUC_temp)
+        mlflow.log_metric("AUC", AUC_temp)
+        mlflow.log_metric("Loss", loss_temp)
+        mlflow.end_run()    # End MLflow logging
 
     # average of metrics
     avg_precision = round(sum(precision) / len(precision), 2)
     avg_recall = round(sum(recall) / len(recall), 2)
     avg_f1_score = round(sum(f1_score) / len(f1_score), 2)
     # # Log client avg metric
-    # mlflow.start_run(run_name = "Client_flwr-torch-lstm_avg", nested=True)
-    # mlflow.log_metric("precision", avg_precision)
-    # mlflow.log_metric("recall", avg_recall)
-    # mlflow.log_metric("f1-score", avg_f1_score)
-    # mlflow.log_metric("ROC_AUC", avg_ROC_AUC)
-    # mlflow.log_metric("AUC", avg_AUC)
-    # mlflow.log_metric("Loss", avg_loss)
-    # mlflow.end_run()    # End MLflow logging
+    mlflow.start_run(run_name = "Client_flwr-torch-MultiheadAttention_avg", nested=True)
+    mlflow.log_metric("precision", avg_precision)
+    mlflow.log_metric("recall", avg_recall)
+    mlflow.log_metric("f1-score", avg_f1_score)
+    mlflow.log_metric("ROC_AUC", avg_ROC_AUC)
+    mlflow.log_metric("AUC", avg_AUC)
+    mlflow.log_metric("Loss", avg_loss)
+    mlflow.end_run()    # End MLflow logging
 
     return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC, "loss": loss}
     # return {"avg_precision": avg_precision, "avg_recall": avg_recall, "avg_f1_score": avg_f1_score, "avg_ROC_AUC": avg_ROC_AUC, "avg_AUC": avg_AUC}
@@ -125,6 +125,7 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         precision = round(classification.get('Fraud', {}).get('precision'), 2)
         recall = round(classification.get('Fraud', {}).get('recall'), 2)
         f1_score = round(classification.get('Fraud', {}).get('f1-score'), 2)
+
         # Log metric, params
         mlflow.log_metric("precision", precision, step=server_round)
         mlflow.log_metric("recall", recall, step=server_round)
@@ -143,7 +144,7 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
             pytorch_model=g_model, 
             artifact_path="Gobal_model", 
             signature=signature, 
-            registered_model_name="Gobal_flwr-torch-MultiheadAttention", 
+            registered_model_name="Gobal_flwr-torch-MultiheadAttention_df1", 
             input_example=input_example.iloc[[0]],
             )
             mlflow.end_run()    # End MLflow logging
@@ -172,10 +173,9 @@ def server_fn(context: Context):
     g_model = Net(input_dim, dim_model, num_classes, num_heads)
 
     # # Load global test set
-    valloader = pd.read_csv('CSV/df_test_3.csv')
+    valloader = pd.read_csv('CSV/df_test_1.csv')
     valloader.drop("Unnamed: 0", axis=1, inplace=True)
     valloader = valloader.astype('float32')
-    
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
     # Split the on edge data: 80% train, 20% test
     Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="Class") # for MLflow

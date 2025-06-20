@@ -23,7 +23,10 @@ class FlowerClient(NumPyClient):
         self.trainloader = trainloader
         self.testloader = testloader
         self.local_epochs = local_epochs
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        if torch.xpu.is_available():    # for Intel GPU
+            self.device = torch.device("xpu:0")
+        else:
+            self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.net.to(self.device)
 
     def fit(self, parameters, config):
