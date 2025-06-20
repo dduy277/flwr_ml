@@ -4,13 +4,13 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from flwr_datasets.partitioner import IidPartitioner
+from flwr_datasets.partitioner import IidPartitioner, DirichletPartitioner
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 from datasets import Dataset
-from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
 import math
+
 
 
 def scaled_dot_product(q, k, v, mask=None):
@@ -46,8 +46,6 @@ class MultiheadAttention(nn.Module):
         return out, values
 
 
-device = torch.device("xpu:0" if torch.xpu.is_available() else "cpu")
-
 class Net(nn.Module):
     def __init__(self, input_dim, dim_model, num_classes, num_heads):
         super(Net, self).__init__()
@@ -62,10 +60,17 @@ class Net(nn.Module):
 
 def load_data(partition_id: int, num_partitions: int):
     """Load partitioned dataset."""
-    df = pd.read_csv('CSV/df_train_3.csv')
+    df = pd.read_csv('CSV/df_train_1.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
-    partitioner = IidPartitioner(num_partitions=num_partitions)
+    # partitioner = IidPartitioner(num_partitions=num_partitions)
+    partitioner = DirichletPartitioner(
+        num_partitions=num_partitions,
+        partition_by="Class",
+        alpha=2,
+        min_partition_size=10,
+        seed=42
+        )
     partitioner.dataset = dataset
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
@@ -74,56 +79,56 @@ def load_data(partition_id: int, num_partitions: int):
     return trainloader, testloader
 
 def train(net, trainloader, epochs, device):
-    """Train the model on the training set."""
+    """Train the model on the training set"""
     net.to(device)  # move model to GPU if available
     criterion = torch.nn.CrossEntropyLoss().to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
     net.train()
     running_loss = 0.0
-    for _ in range(epochs):
-        for i in trainloader:
-            X_train = trainloader.drop('Class', axis=1).values.astype('float32')
-            X_train = torch.from_numpy(np.expand_dims(X_train, axis=2)).float()
-            y_train = torch.from_numpy(trainloader['Class'].values).long()
+    for epoch in range(epochs):
+        # Extract features and labels once per epoch
+        X_train = trainloader.drop('Class', axis=1).values
+        X_train = torch.from_numpy(np.expand_dims(X_train, axis=2)).to(device)
+        y_train = torch.from_numpy(trainloader['Class'].values).long().to(device)
 
-            outputs = net(X_train.to(device))
-            y_train = y_train.to(device)
-            loss = criterion(outputs, y_train)
-            
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item()
+        # Forward pass
+        outputs = net(X_train)
+        loss = criterion(outputs, y_train)
+        
+        # Backward pass
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        running_loss += loss.item()
 
-    avg_trainloss = running_loss / len(trainloader)
+    avg_trainloss = running_loss / epochs
     return avg_trainloss
 
 
 def test(net, testloader, device):
-    """Validate the model on the test set."""
-    net.to(device)# move model to GPU if available
+    """Validate the model on the test set"""
+    net.to(device)  # move model to GPU if available
+    net.eval()  # Set to evaluation mode
     criterion = torch.nn.CrossEntropyLoss()
     correct, loss = 0, 0
     all_X_preds = []
     all_y_labels = []
     with torch.no_grad():
-        for i in testloader:
-            X_test = testloader.drop('Class', axis=1).values
-            X_test = torch.from_numpy(np.expand_dims(X_test, axis=2)).float()
-            y_test = torch.from_numpy(testloader['Class'].values).long()
-            
-            outputs = net(X_test.to(device))
-            y_test = y_test.to(device)
-            loss += criterion(outputs, y_test).item()
-
-            probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()  # Probability for the positive class
-            all_X_preds.extend(probs)
-            all_y_labels.extend(y_test.cpu().numpy())
-
-            correct += (torch.max(outputs.data, 1)[1] == y_test).sum().item()
-    accuracy = correct / len(testloader)
+        # Extract features and labels once
+        X_test = testloader.drop('Class', axis=1).values
+        X_test = torch.from_numpy(np.expand_dims(X_test, axis=2)).to(device)
+        y_test = torch.from_numpy(testloader['Class'].values).long().to(device)
+        outputs = net(X_test)
+        loss = criterion(outputs, y_test).item()
+        # Get probabilities for the positive class (class 1)
+        probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()
+        all_X_preds.extend(probs)
+        all_y_labels.extend(y_test.cpu().numpy())
+        # accuracy
+        correct = (torch.max(outputs.data, 1)[1] == y_test).sum().item()
     loss = loss / len(testloader)
-    return loss, accuracy, all_X_preds, all_y_labels
+    accuracy = correct / len(testloader)
+    return loss, accuracy, np.array(all_X_preds), np.array(all_y_labels)
 
 
 def get_weights(net):

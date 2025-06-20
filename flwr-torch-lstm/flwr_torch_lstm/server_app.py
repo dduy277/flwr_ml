@@ -7,22 +7,27 @@ from flwr_torch_lstm.task import Net, get_weights, set_weights, test
 import json
 import pandas as pd
 from typing import List, Tuple
-from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, log_loss, classification_report
+from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, classification_report
 import mlflow
-import mlflow.sklearn
 from mlflow.models import infer_signature
 from mlflow.data.pandas_dataset import PandasDataset
 import torch
+import logging
 
 
 
-# """MlFlow tracking"""
-# # Set our tracking server uri for logging
-# mlflow.set_tracking_uri(uri="http://localhost:5000")
+"""MlFlow tracking"""
+# Set our tracking server uri for logging
+mlflow.set_tracking_uri(uri="http://localhost:5000")
 
-# # Create / start a new MLflow Experiment
-# mlflow.set_experiment("MLflow Quickstart")
-# mlflow.start_run(run_name = "Gobal_flwr-torch-lstm")
+# Set log level
+# # (MLflow can't verifile input data, so turm off the debug for now)
+logger = logging.getLogger("mlflow")
+logger.setLevel(logging.NOTSET)
+
+# Create / start a new MLflow Experiment
+mlflow.set_experiment("MLflow lstm df1")
+mlflow.start_run(run_name = "Gobal_flwr-torch-lstm", log_system_metrics=True)
 
 
 ## Hyper-parameters 
@@ -33,12 +38,15 @@ num_classes = 2 # num y class
 
 
 # Get device (need to be global ?)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+if torch.xpu.is_available():    # for Intel GPU
+    device = torch.device("xpu:0")
+else:
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 # Take ROC_AUC, AUC, classification_report
 def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    ROC_AUC=[]; AUC=[]; precision=[]; recall=[]; f1_score=[]
+    ROC_AUC=[]; AUC=[]; precision=[]; recall=[]; f1_score=[]; loss=[]
     """A func that aggregates metrics"""
 
     for _,m in metrics:
@@ -46,12 +54,15 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         # get metric
         ROC_AUC_temp = m.get("ROC_AUC")
         AUC_temp = m.get("AUC")
+        loss_temp=m.get("Loss")
         # put metrics into array
         ROC_AUC.append( round(ROC_AUC_temp, 4) )
         AUC.append( round(AUC_temp, 4) )
+        loss.append( loss_temp )
         # average of metrics
         avg_ROC_AUC = round(sum(ROC_AUC) / len(ROC_AUC), 4)
         avg_AUC = round(sum(AUC) / len(AUC), 4)
+        avg_loss = sum(loss) / len(loss)
         "Get classification_str"
         # json to dict
         classification = json.loads(m["Classification_str"])
@@ -63,21 +74,39 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         precision.append(round(precision_temp, 2))
         recall.append(round(recall_temp, 2))
         f1_score.append(round(f1_score_temp, 2))
+        # Log client metric
+        mlflow.start_run(run_name = "Client_flwr-torch-lstm", nested=True)
+        mlflow.log_metric("precision", precision_temp)
+        mlflow.log_metric("recall", recall_temp)
+        mlflow.log_metric("f1-score", f1_score_temp)
+        mlflow.log_metric("ROC_AUC", ROC_AUC_temp)
+        mlflow.log_metric("AUC", AUC_temp)
+        mlflow.log_metric("Loss", loss_temp)
+        mlflow.end_run()    # End MLflow logging
 
     # average of metrics
     avg_precision = round(sum(precision) / len(precision), 2)
     avg_recall = round(sum(recall) / len(recall), 2)
     avg_f1_score = round(sum(f1_score) / len(f1_score), 2)
+    # Log client avg metric
+    mlflow.start_run(run_name = "Client_flwr-torch-lstm_avg", nested=True)
+    mlflow.log_metric("precision", avg_precision)
+    mlflow.log_metric("recall", avg_recall)
+    mlflow.log_metric("f1-score", avg_f1_score)
+    mlflow.log_metric("ROC_AUC", avg_ROC_AUC)
+    mlflow.log_metric("AUC", avg_AUC)
+    mlflow.log_metric("Loss", avg_loss)
+    mlflow.end_run()    # End MLflow logging
 
     # np.float64 doesn't affect anything, it looks ugly though.
-    # return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
-    return {"avg_precision": avg_precision, "avg_recall": avg_recall, "avg_f1_score": avg_f1_score, "avg_ROC_AUC": avg_ROC_AUC, "avg_AUC": avg_AUC}
+    return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC, "loss": loss}
+    # return {"avg_precision": avg_precision, "avg_recall": avg_recall, "avg_f1_score": avg_f1_score, "avg_ROC_AUC": avg_ROC_AUC, "avg_AUC": avg_AUC}
 
 
 # Evaluates the global mode
 def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
     """Return a callback that evaluates the global model"""
-    def eval(server_round, parameters_ndarrays, config): # server_round == current round
+    def eval(server_round, parameters_ndarrays, config):
         set_weights(g_model, parameters_ndarrays)
         X_test_global = valloader.drop('Class', axis=1).values
         y_test_global = valloader['Class'].values
@@ -90,40 +119,35 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         AUC = auc(recall, precision)
         # Convert probabilities to binary class predictions
         y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
-        # print ("precision: ",precision[0])
-        # print ("recall: ",recall[0])
-        # print ("y_pred: ",y_pred[0])
         # Generate classification report
         classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
-
         ROC_AUC = round(ROC_AUC, 4)
         AUC = round(AUC, 4)
         precision = round(classification.get('Fraud', {}).get('precision'), 2)
         recall = round(classification.get('Fraud', {}).get('recall'), 2)
         f1_score = round(classification.get('Fraud', {}).get('f1-score'), 2)
-
-        # # Log the metrics (final run only)
-        # if server_round == num_rounds:
-        #     # Log metric, params
-        #     mlflow.log_metric("precision", precision)
-        #     mlflow.log_metric("recall", recall)
-        #     mlflow.log_metric("f1-score", f1_score)
-        #     mlflow.log_metric("ROC_AUC", ROC_AUC)
-        #     mlflow.log_metric("AUC", AUC)
-        #     mlflow.log_metric("Loss", loss)
-        #     mlflow.log_params(params)
-        #     # Log test dataset
-        #     mlflow.log_input(Test_ds, context="testing")
-        #     # Log the model
-        #     signature = infer_signature(X_test_global, X_preds)
-        #     mlflow.pytorch.log_model(
-        #     pytorch_model=g_model, 
-        #     artifact_path="G_model", 
-        #     signature=signature, 
-        #     registered_model_name="Gobal_flwr-torch-lstm", 
-        #     input_example=input_example.iloc[[0]],
-        #     )
-        #     mlflow.end_run()    # End MLflow logging
+        # Log metric, params
+        mlflow.log_metric("precision", precision, step=server_round)
+        mlflow.log_metric("recall", recall, step=server_round)
+        mlflow.log_metric("f1-score", f1_score, step=server_round)
+        mlflow.log_metric("ROC_AUC", ROC_AUC, step=server_round)
+        mlflow.log_metric("AUC", AUC, step=server_round)
+        mlflow.log_metric("Loss", loss, step=server_round)
+        mlflow.log_params(params)
+        # Final run only
+        if server_round == num_rounds:
+            # Log test dataset
+            mlflow.log_input(Test_ds, context="Testing")
+            # Log the model
+            signature = infer_signature(X_test_global, X_preds)
+            mlflow.pytorch.log_model(
+            pytorch_model=g_model, 
+            artifact_path="Gobal_model", 
+            signature=signature, 
+            registered_model_name="Gobal_flwr-torch-lstm_df1", 
+            input_example=input_example.iloc[[0]],
+            )
+            mlflow.end_run()    # End MLflow logging
         return loss, {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC}
     
     return eval
@@ -150,7 +174,7 @@ def server_fn(context: Context):
     g_model = Net(input_size, hidden_size, num_layers, num_classes)
 
     # # Load global test set
-    valloader = pd.read_csv('CSV/df_test_3.csv')
+    valloader = pd.read_csv('CSV/df_test_1.csv')
     valloader.drop("Unnamed: 0", axis=1, inplace=True)
     valloader = valloader.astype('float32')
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names

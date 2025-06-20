@@ -8,6 +8,8 @@ from flwr_torch_rnn.task import Net, get_weights, load_data, set_weights, test, 
 import json
 from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, classification_report
 
+
+
 ## Hyper-parameters 
 input_size = 16 # dataset collumns
 hidden_size = 1
@@ -21,16 +23,19 @@ class FlowerClient(NumPyClient):
         self.trainloader = trainloader
         self.valloader = valloader
         self.local_epochs = local_epochs
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        if torch.xpu.is_available():    # for Intel GPU
+            self.device = torch.device("xpu:0")
+        else:
+            self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.net.to(self.device)
 
     def fit(self, parameters, config):
         set_weights(self.net, parameters)
         train_loss = train(
-            self.net,
-            self.trainloader,
-            self.local_epochs,
-            self.device,
+            net=self.net,
+            trainloader=self.trainloader,
+            epochs=self.local_epochs,
+            device=self.device,
         )
         return (
             get_weights(self.net),
@@ -40,17 +45,18 @@ class FlowerClient(NumPyClient):
 
     def evaluate(self, parameters, config):
         set_weights(self.net, parameters)
-        loss, accuracy, precision, recall, f1= test(self.net, self.valloader, self.device)
-        # precision, recall, thresholds = precision_recall_curve(y_labels, X_preds)
-        # ROC_AUC = roc_auc_score(y_labels, X_preds)
-        # AUC = auc(recall, precision)
-        # y_pred = [1 if p >= 0.5 else 0 for p in X_preds]  # Convert probabilities to binary class predictions
-        # classification = classification_report(y_labels, X_preds, target_names=['Not Fraud', 'Fraud'], output_dict=True)
+        loss, accuracy, X_preds, y_labels= test(self.net, self.valloader, self.device)
+        # Precision-Recall curve and ROC-AUC score
+        precision, recall, thresholds = precision_recall_curve(y_labels, X_preds)
+        ROC_AUC = roc_auc_score(y_labels, X_preds)
+        AUC = auc(recall, precision)
+        # Convert probabilities to binary class predictions
+        y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
+        # Generate classification report
+        classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
         # Dict to json
-        # classification_str = json.dumps(classification)
-        # print("precision", precision)
-        return loss, len(self.valloader), {"precision": precision, "recall": recall, "f1": f1}
-        # return loss, len(self.valloader), {"accuracy": accuracy}
+        classification_str = json.dumps(classification)
+        return loss, len(self.valloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str, "Loss": loss}
 
 
 
