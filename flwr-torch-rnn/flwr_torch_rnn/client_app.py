@@ -45,7 +45,7 @@ class FlowerClient(NumPyClient):
 
     def evaluate(self, parameters, config):
         set_weights(self.net, parameters)
-        loss, accuracy, X_preds, y_labels= test(self.net, self.testloader, self.device)
+        loss, accuracy, X_preds, y_labels= test(self.net, self.valloader, self.device)
         # Precision-Recall curve and ROC-AUC score
         precision, recall, thresholds = precision_recall_curve(y_labels, X_preds)
         ROC_AUC = roc_auc_score(y_labels, X_preds)
@@ -56,7 +56,7 @@ class FlowerClient(NumPyClient):
         classification = classification_report(y_labels, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
         # Dict to json
         classification_str = json.dumps(classification)
-        return loss, len(self.testloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str, "Loss": loss}
+        return loss, len(self.valloader), {"ROC_AUC": ROC_AUC, "AUC": AUC, "Classification_str": classification_str, "Loss": loss}
 
 
 
