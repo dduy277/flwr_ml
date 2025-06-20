@@ -1,5 +1,5 @@
 import time
-from flwr_torch_lstm.Crypto.fhe_crypto import FheCryptoAPI
+from flwr_sklearn_logisticregression.Crypto.fhe_crypto import FheCryptoAPI
 
 from typing import Dict, List, Optional, Tuple, Union
 from logging import INFO, WARNING
@@ -17,26 +17,24 @@ from flwr.common import (
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.client_manager import ClientManager
 from flwr.server.strategy import FedAvg
-from flwr_torch_lstm.task import Net
+from flwr_sklearn_logisticregression.task import get_model, set_initial_params
 import pickle
 
 
-## Hyper-parameters 
-input_size = 16 # dataset collumns
-hidden_size = 1
-num_layers = 3
-num_classes = 2 # num y class
 
 class FheFedAvg(FedAvg):
     def __init__(
         self,
         *,
         dataset_name: str = None,
+        penalty: str = "l2",
+        local_epochs: int = 300,
         **kwargs,
     ) -> None:
         log(INFO, "FHE strategy created")
 
-        self.model = Net(input_size, hidden_size, num_layers, num_classes)
+        self.model = get_model(penalty, local_epochs)
+        set_initial_params(self.model)
         self.init_stage = True
         self.ckpt_name = ""
 
@@ -44,12 +42,15 @@ class FheFedAvg(FedAvg):
         self.cc, self.pubkey, self.seckey = FheCryptoAPI.create_crypto_context_and_keys()
 
         super().__init__(**kwargs)
+        
+        self.penalty=penalty
+        self.local_epochs=local_epochs
 
     def __decrypt_params(self, parameters: Parameters) -> NDArrays:
         log(INFO, "FHE decrypt params")
         decrypted_params = []
         
-        for i, (param_data, model_param) in enumerate(zip(parameters.tensors, self.model.state_dict().values())):
+        for i, param_data in enumerate(parameters.tensors):
             if isinstance(param_data, bytes):
                 # If it's bytes, unpickle first
                 encrypted_blocks = pickle.loads(param_data)
@@ -57,12 +58,20 @@ class FheFedAvg(FedAvg):
                 # If it's already a list of encrypted blocks
                 encrypted_blocks = param_data
                 print("Parameters NOT encrypted")
+            # Based on the model parameters (coef_ and intercept_)
+            if i == 0:  # coef_ parameter
+                expected_shape = (2, 16)  # (n_classes, n_features)
+            else :  #i == 1 intercept_ parameter (if fit_intercept=True) 
+                expected_shape = (2,)  # (n_classes,)
+            # else:
+            #     # Fallback for any additional parameters
+            #     expected_shape = None
+            #     expected_dtype = np.float64
                 
-            decrypted_tensor = FheCryptoAPI.decrypt_torch_tensor(
-                self.cc, self.seckey,
-                encrypted_blocks, model_param.dtype, model_param.shape
+            decrypted_tensor = FheCryptoAPI.decrypt_numpy_array(
+                self.cc, self.seckey, encrypted_blocks, np.float64, expected_shape
             )
-            decrypted_params.append(decrypted_tensor.cpu().numpy())
+            decrypted_params.append(decrypted_tensor)
         
         return decrypted_params
 
@@ -96,16 +105,14 @@ class FheFedAvg(FedAvg):
 
         if self.init_stage:
             # Convert initial parameters to encrypted format
-            # print(parameters_to_ndarrays(parameters))
             parameters = self.__encrypt_params(parameters_to_ndarrays(parameters))
             # self._save_checkpoint(parameters)
             self.init_stage = False
-        elif len(parameters.tensors) == 0:
-            # Load from checkpoint if no parameters
-            parameters = self._load_previous_checkpoint()
+        # elif len(parameters.tensors) == 0:
+        #     # Load from checkpoint if no parameters
+        #     parameters = self._load_previous_checkpoint()
 
         fit_config = super().configure_fit(server_round, parameters, client_manager)
-
         # Deliver keys, info to clients
         for client, fit_ins in fit_config:
             fit_ins.config['crypto_context'] = self.cc
@@ -185,7 +192,4 @@ class FheFedAvg(FedAvg):
         elif server_round == 1: # Only log this warning once
             log(WARNING, "No fit_metrics_aggregation_fn provided")
 
-        # # Save checkpoint
-        # if len(parameters_aggregated.tensors) > 0:
-        #     self._save_checkpoint(parameters_aggregated)
         return parameters_aggregated, metrics_aggregated

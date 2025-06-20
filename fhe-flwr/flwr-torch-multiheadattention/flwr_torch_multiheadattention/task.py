@@ -4,7 +4,7 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from flwr_datasets.partitioner import IidPartitioner
+from flwr_datasets.partitioner import IidPartitioner, DirichletPartitioner
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
@@ -61,10 +61,17 @@ class Net(nn.Module):
 
 def load_data(partition_id: int, num_partitions: int):
     """Load partitioned dataset."""
-    df = pd.read_csv('CSV/df_train_3.csv')
+    df = pd.read_csv('CSV/df_train_1.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
-    partitioner = IidPartitioner(num_partitions=num_partitions)
+    # partitioner = IidPartitioner(num_partitions=num_partitions)
+    partitioner = DirichletPartitioner(
+        num_partitions=num_partitions,
+        partition_by="Class",
+        alpha=2,
+        min_partition_size=10,
+        seed=42
+        )
     partitioner.dataset = dataset
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')

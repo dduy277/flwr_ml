@@ -26,7 +26,7 @@ logger = logging.getLogger("mlflow")
 logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow lstm")
+mlflow.set_experiment("MLflow lstm df1")
 mlflow.start_run(run_name = "Gobal_flwr-fhe-torch-lstm", log_system_metrics=True)
 
 
@@ -75,7 +75,7 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         recall.append(round(recall_temp, 2))
         f1_score.append(round(f1_score_temp, 2))
         # Log client metric
-        mlflow.start_run(run_name = "Client_flwr-torch-lstm", nested=True)
+        mlflow.start_run(run_name = "Client_flwr-fhe-torch-lstm", nested=True)
         mlflow.log_metric("precision", precision_temp)
         mlflow.log_metric("recall", recall_temp)
         mlflow.log_metric("f1-score", f1_score_temp)
@@ -88,7 +88,7 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     avg_recall = round(sum(recall) / len(recall), 2)
     avg_f1_score = round(sum(f1_score) / len(f1_score), 2)
     # Log client avg metric
-    mlflow.start_run(run_name = "Client_flwr-torch-lstm_avg", nested=True)
+    mlflow.start_run(run_name = "Client_flwr-fhe-torch-lstm_avg", nested=True)
     mlflow.log_metric("precision", avg_precision)
     mlflow.log_metric("recall", avg_recall)
     mlflow.log_metric("f1-score", avg_f1_score)
@@ -112,7 +112,6 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
         input_example = valloader.drop('Class', axis=1)
         # Eval
         loss, accuracy, X_preds, y_labels = test(g_model, valloader, device)
-        # Precision-Recall curve and ROC-AUC score
         precision, recall, thresholds = precision_recall_curve(y_labels, X_preds)
         ROC_AUC = roc_auc_score(y_labels, X_preds)
         AUC = auc(recall, precision)
@@ -141,9 +140,9 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
             signature = infer_signature(X_test_global, X_preds)
             mlflow.pytorch.log_model(
             pytorch_model=g_model, 
-            artifact_path="G_model", 
+            artifact_path="Global_model", 
             signature=signature, 
-            registered_model_name="Gobal_flwr-fhe-torch-lstm", 
+            registered_model_name="Gobal_flwr-fhe-torch-lstm_df1", 
             input_example=input_example.iloc[[0]],
             )
             mlflow.end_run()    # End MLflow logging
@@ -170,7 +169,7 @@ def server_fn(context: Context):
     # Load model
     g_model = Net(input_size, hidden_size, num_layers, num_classes)
     # # Load global test set
-    valloader = pd.read_csv('CSV/df_test_3.csv')
+    valloader = pd.read_csv('CSV/df_test_1.csv')
     valloader.drop("Unnamed: 0", axis=1, inplace=True)
     valloader = valloader.astype('float32')
     # ".values" to fix "X has feature names, but LogisticRegression was fitted without feature names"

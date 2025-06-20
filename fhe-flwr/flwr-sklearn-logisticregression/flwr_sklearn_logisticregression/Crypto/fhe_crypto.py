@@ -127,7 +127,7 @@ class FheCryptoAPI:
     
 
     @staticmethod
-    def decrypt_torch_tensor(
+    def decrypt_numpy_array(
         cc_bytes: bytes,
         seckey_bytes: bytes,
         ciphertext_blocks,
@@ -136,19 +136,16 @@ class FheCryptoAPI:
     ):
         cc = FheCryptoAPI.deserialize_crypto_context(cc_bytes)
         seckey = FheCryptoAPI.deserialize_private_key(seckey_bytes)
-        # ciphertext = [FheCryptoAPI.deserialize_ciphertext(ciphertext_blocks)]
-        # plaintext = cc.Decrypt(seckey, ciphertext).GetCKKSPackedValue()
-        # real_arr = [x.real for x in plaintext]
 
-        decrypted_tensors = []
+        decrypted_values = []
         for block in ciphertext_blocks:
             cmplx_block = cc.Decrypt(seckey, FheCryptoAPI.deserialize_ciphertext(block)).GetCKKSPackedValue()
             real_tensor = [x.real for x in cmplx_block]
-            decrypted_tensors.append(torch.tensor(real_tensor, dtype=dtype))
-            # print(decrypted_tensors)
-        flat_sz = math.prod(shape)
-
-        return torch.cat(decrypted_tensors, dim=0)[:flat_sz].reshape(shape).cpu()
+            decrypted_values.extend(real_tensor)
+        
+        # Reshape to expected dimensions
+        flat_size = np.prod(shape)
+        return np.array(decrypted_values[:flat_size], dtype=dtype).reshape(shape)
 
 
     @staticmethod
@@ -212,3 +209,66 @@ class FheCryptoAPI:
             final_encrypted_params.append(pickle.dumps(blocks))
         
         return final_encrypted_params
+
+
+    # @staticmethod
+    # def aggregate_encrypted(
+    #     encrypted_results: List[Tuple[List[bytes], int]], 
+    #     cc_bytes: bytes) -> List[bytes]:
+
+    #     cc = FheCryptoAPI.deserialize_crypto_context(cc_bytes)
+    #     if not encrypted_results:
+    #         return []
+        
+    #     # Calculate total examples and weights
+    #     num_examples_total = sum(num_examples for (_, num_examples) in encrypted_results)
+    #     weights = [num_examples / num_examples_total for _, num_examples in encrypted_results]
+        
+
+    #     # Initialize aggregated parameters with first client's weighted parameters
+    #     first_encrypted_params, _ = encrypted_results[0]
+    #     aggregated_params = []
+        
+    #     # Process each parameter (coef_ and intercept_)
+    #     for param_idx, encrypted_param_bytes in enumerate(first_encrypted_params):
+    #         encrypted_blocks = pickle.loads(encrypted_param_bytes)
+            
+    #         # Scale first client's parameter by its weight
+    #         weighted_blocks = []
+    #         for block_bytes in encrypted_blocks:
+    #             ciphertext = FheCryptoAPI.deserialize_ciphertext(block_bytes)
+    #             weighted_ciphertext = cc.EvalMult(ciphertext, weights[0])
+    #             weighted_blocks.append(FheCryptoAPI.serialize_to_bytes(weighted_ciphertext))
+            
+    #         aggregated_params.append(weighted_blocks)
+        
+    #     # Add remaining clients' weighted parameters
+    #     for client_idx, (encrypted_params, _) in enumerate(encrypted_results[1:], 1):
+    #         weight = weights[client_idx]
+            
+    #         for param_idx, encrypted_param_bytes in enumerate(encrypted_params):
+    #             encrypted_blocks = pickle.loads(encrypted_param_bytes)
+                
+    #             # Process each block in the parameter
+    #             for block_idx, block_bytes in enumerate(encrypted_blocks):
+    #                 # Scale current client's block
+    #                 ciphertext = FheCryptoAPI.deserialize_ciphertext(block_bytes)
+    #                 weighted_ciphertext = cc.EvalMult(ciphertext, weight)
+                    
+    #                 # Add to aggregated result
+    #                 aggregated_ciphertext = FheCryptoAPI.deserialize_ciphertext(
+    #                     aggregated_params[param_idx][block_idx]
+    #                 )
+    #                 new_aggregated = cc.EvalAdd(aggregated_ciphertext, weighted_ciphertext)
+                    
+    #                 # Update aggregated result
+    #                 aggregated_params[param_idx][block_idx] = FheCryptoAPI.serialize_to_bytes(
+    #                     new_aggregated
+    #                 )
+        
+    #     # Serialize final results
+    #     final_encrypted_params = []
+    #     for param_blocks in aggregated_params:
+    #         final_encrypted_params.append(pickle.dumps(param_blocks))
+        
+    #     return final_encrypted_params
