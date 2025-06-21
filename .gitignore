@@ -22,3 +22,6 @@ datasets/cifar10/cifar-10-batches-py/data_batch_5
 datasets/cifar10/cifar-10-batches-py/readme.html
 datasets/cifar10/cifar-10-batches-py/test_batch
 Deploy_model/flwr_rnn_deploy.py
+CSV/df_2.7z.001
+CSV/df_2.7z.002
+CSV/df_3.7z
