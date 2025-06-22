@@ -32,7 +32,7 @@ mlflow.start_run(run_name = "Gobal_flwr-fhe-torch-gru", log_system_metrics=True)
 
 ## Hyper-parameters 
 input_size = 16 # dataset collumns
-hidden_size = 1
+hidden_size = 2
 num_classes = 2 # num y class
 num_layers = 3
 

@@ -38,7 +38,7 @@ class MultiheadAttention(nn.Module):
         batch_size, sequence_length, input_dim = x.size()
         qkv = self.qkv_layer(x)
         qkv = qkv.reshape(batch_size, sequence_length, self.num_heads, 3 * self.head_dim)
-        qkv = qkv.permute(0, 2, 1, 3)
+        qkv = qkv.permute(0, 2, 1, 3)   # change position to [batch_size, num_heads, sequence_length, 3*head_dim]
         q, k, v = qkv.chunk(3, dim=-1)
         values, attention = scaled_dot_product(q, k, v, mask)
         values = values.reshape(batch_size, sequence_length, self.num_heads * self.head_dim)
@@ -85,12 +85,11 @@ def train(net, trainloader, epochs, device):
     optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
     net.train()
     running_loss = 0.0
+    # Extract features and labels
+    X_train = trainloader.drop('Class', axis=1).values
+    X_train = torch.from_numpy(np.expand_dims(X_train, axis=2)).to(device)
+    y_train = torch.from_numpy(trainloader['Class'].values).long().to(device)
     for epoch in range(epochs):
-        # Extract features and labels once per epoch
-        X_train = trainloader.drop('Class', axis=1).values
-        X_train = torch.from_numpy(np.expand_dims(X_train, axis=2)).to(device)
-        y_train = torch.from_numpy(trainloader['Class'].values).long().to(device)
-
         # Forward pass
         outputs = net(X_train)
         loss = criterion(outputs, y_train)

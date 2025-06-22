@@ -23,7 +23,7 @@ import pickle
 
 ## Hyper-parameters 
 input_dim = 1
-dim_model = 64
+dim_model = 32
 num_classes = 2 # num y class
 num_heads = 4
 

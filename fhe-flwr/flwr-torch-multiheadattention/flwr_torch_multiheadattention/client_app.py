@@ -14,7 +14,7 @@ from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, classifi
 
 ## Hyper-parameters 
 input_dim = 1
-dim_model = 64
+dim_model = 32
 num_classes = 2 # num y class
 num_heads = 4
 

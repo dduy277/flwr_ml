@@ -32,7 +32,7 @@ mlflow.start_run(run_name = "Gobal_flwr-torch-MultiheadAttention", log_system_me
 
 ## Hyper-parameters 
 input_dim = 1
-dim_model = 64
+dim_model = 32
 num_classes = 2 # num y class
 num_heads = 4
 

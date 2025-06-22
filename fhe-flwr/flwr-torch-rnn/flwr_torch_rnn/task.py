@@ -56,11 +56,11 @@ def train(net, trainloader, epochs, device):
     optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
     net.train()
     running_loss = 0.0
+    # Extract features and labels
+    X_train = trainloader.drop('Class', axis=1).values
+    X_train = torch.from_numpy(np.expand_dims(X_train, axis=1)).to(device)
+    y_train = torch.from_numpy(trainloader['Class'].values).long().to(device)
     for epoch in range(epochs):
-        # Extract features and labels once per epoch
-        X_train = trainloader.drop('Class', axis=1).values
-        X_train = torch.from_numpy(np.expand_dims(X_train, axis=1)).to(device)
-        y_train = torch.from_numpy(trainloader['Class'].values).long().to(device)
 
         # Forward pass
         outputs = net(X_train)
