@@ -45,16 +45,21 @@ class MultiheadAttention(nn.Module):
         out = self.linear_layer(values)
         return out, values
 
-
 class Net(nn.Module):
     def __init__(self, input_dim, dim_model, num_classes, num_heads):
         super(Net, self).__init__()
         self.multihead_attention = MultiheadAttention(input_dim=input_dim, dim_model=dim_model, num_heads=num_heads)
+        self.layer_norm = nn.LayerNorm(dim_model)
+        self.dropout = nn.Dropout(0.1)
         self.fc = nn.Linear(dim_model, num_classes)
     def forward(self, x, mask=None):
         # Apply Multihead Attention
-        attn_output, _= self.multihead_attention(x, mask)  # [batch_size, seq_len, input_dim]
-        out = attn_output[:, -1, :]  # [batch_size, (remove), input_dim]
+        attn_output, _ = self.multihead_attention(x, mask)
+        # Add normalization and dropout for better training
+        attn_output = self.layer_norm(attn_output)
+        attn_output = self.dropout(attn_output)
+        # Use global average pooling instead of just last position, this considers all feature relationships learned by attention
+        out = torch.mean(attn_output, dim=1)  # [batch_size, dim_model]
         out = self.fc(out)
         return out
 

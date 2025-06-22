@@ -36,9 +36,9 @@ class MultiheadAttention(nn.Module):
     
     def forward(self, x, mask):
         batch_size, sequence_length, input_dim = x.size()
-        qkv = self.qkv_layer(x) 
+        qkv = self.qkv_layer(x)
         qkv = qkv.reshape(batch_size, sequence_length, self.num_heads, 3 * self.head_dim)
-        qkv = qkv.permute(0, 2, 1, 3)   # change position to [batch_size, num_heads, sequence_length, 3*head_dim]
+        qkv = qkv.permute(0, 2, 1, 3)
         q, k, v = qkv.chunk(3, dim=-1)
         values, attention = scaled_dot_product(q, k, v, mask)
         values = values.reshape(batch_size, sequence_length, self.num_heads * self.head_dim)
@@ -50,24 +50,30 @@ class Net(nn.Module):
     def __init__(self, input_dim, dim_model, num_classes, num_heads):
         super(Net, self).__init__()
         self.multihead_attention = MultiheadAttention(input_dim=input_dim, dim_model=dim_model, num_heads=num_heads)
+        self.layer_norm = nn.LayerNorm(dim_model)
+        self.dropout = nn.Dropout(0.1)
         self.fc = nn.Linear(dim_model, num_classes)
     def forward(self, x, mask=None):
         # Apply Multihead Attention
-        attn_output, _= self.multihead_attention(x, mask)  # [batch_size, seq_len, input_dim]
-        out = attn_output[:, -1, :]  # [batch_size, (remove), input_dim]
+        attn_output, _ = self.multihead_attention(x, mask)
+        # Add normalization and dropout for better training
+        attn_output = self.layer_norm(attn_output)
+        attn_output = self.dropout(attn_output)
+        # Use global average pooling instead of just last position, this considers all feature relationships learned by attention
+        out = torch.mean(attn_output, dim=1)  # [batch_size, dim_model]
         out = self.fc(out)
         return out
 
 
 def load_data(partition_id: int, num_partitions: int):
     """Load partitioned dataset."""
-    df = pd.read_csv('CSV/df_train_2.csv')
+    df = pd.read_csv('CSV/df_train_1.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
     # partitioner = IidPartitioner(num_partitions=num_partitions)
     partitioner = DirichletPartitioner(
         num_partitions=num_partitions,
-        partition_by="isFraud",
+        partition_by="Class",
         alpha=2,
         min_partition_size=10,
         seed=42
@@ -76,7 +82,7 @@ def load_data(partition_id: int, num_partitions: int):
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
     # Split the data: 80% train, 20% test
-    trainloader, testloader = train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['isFraud'])
+    trainloader, testloader = train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
     return trainloader, testloader
 
 
@@ -88,10 +94,11 @@ def train(net, trainloader, epochs, device):
     net.train()
     running_loss = 0.0
     # Extract features and labels
-    X_train = trainloader.drop('isFraud', axis=1).values
+    X_train = trainloader.drop('Class', axis=1).values
     X_train = torch.from_numpy(np.expand_dims(X_train, axis=2)).to(device)
-    y_train = torch.from_numpy(trainloader['isFraud'].values).long().to(device)
+    y_train = torch.from_numpy(trainloader['Class'].values).long().to(device)
     for epoch in range(epochs):
+
         # Forward pass
         outputs = net(X_train)
         loss = criterion(outputs, y_train)
@@ -116,9 +123,9 @@ def test(net, testloader, device):
     all_y_labels = []
     with torch.no_grad():
         # Extract features and labels once
-        X_test = testloader.drop('isFraud', axis=1).values
+        X_test = testloader.drop('Class', axis=1).values
         X_test = torch.from_numpy(np.expand_dims(X_test, axis=2)).to(device)
-        y_test = torch.from_numpy(testloader['isFraud'].values).long().to(device)
+        y_test = torch.from_numpy(testloader['Class'].values).long().to(device)
         outputs = net(X_test)
         loss = criterion(outputs, y_test).item()
         # Get probabilities for the positive class (class 1)
