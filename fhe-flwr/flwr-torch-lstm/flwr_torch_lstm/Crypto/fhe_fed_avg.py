@@ -22,7 +22,7 @@ import pickle
 
 
 ## Hyper-parameters 
-input_size = 16 # dataset collumns
+input_size = 8 # dataset collumns
 hidden_size = 2
 num_layers = 3
 num_classes = 2 # num y class

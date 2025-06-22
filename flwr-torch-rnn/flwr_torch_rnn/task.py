@@ -31,13 +31,13 @@ class Net(nn.Module):
 
 def load_data(partition_id: int, num_partitions: int):
     """Load partitioned dataset."""
-    df = pd.read_csv('CSV/df_train_1.csv')
+    df = pd.read_csv('CSV/df_train_2.csv')
     df.drop("Unnamed: 0", axis=1, inplace=True)
     dataset = Dataset.from_pandas(df)
     # partitioner = IidPartitioner(num_partitions=num_partitions)
     partitioner = DirichletPartitioner(
         num_partitions=num_partitions,
-        partition_by="Class",
+        partition_by="isFraud",
         alpha=2,
         min_partition_size=10,
         seed=42
@@ -46,7 +46,7 @@ def load_data(partition_id: int, num_partitions: int):
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
     # Split the data: 80% train, 20% test
-    trainloader, testloader= train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
+    trainloader, testloader= train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['isFraud'])
     return trainloader, testloader
 
 
@@ -58,9 +58,9 @@ def train(net, trainloader, epochs, device):
     net.train()
     running_loss = 0.0
     # Extract features and labels
-    X_train = trainloader.drop('Class', axis=1).values
+    X_train = trainloader.drop('isFraud', axis=1).values
     X_train = torch.from_numpy(np.expand_dims(X_train, axis=1)).to(device)
-    y_train = torch.from_numpy(trainloader['Class'].values).long().to(device)
+    y_train = torch.from_numpy(trainloader['isFraud'].values).long().to(device)
     for epoch in range(epochs):
 
         # Forward pass
@@ -87,9 +87,9 @@ def test(net, testloader, device):
     all_y_labels = []
     with torch.no_grad():
         # Extract features and labels once
-        X_test = testloader.drop('Class', axis=1).values
+        X_test = testloader.drop('isFraud', axis=1).values
         X_test = torch.from_numpy(np.expand_dims(X_test, axis=1)).to(device)
-        y_test = torch.from_numpy(testloader['Class'].values).long().to(device)
+        y_test = torch.from_numpy(testloader['isFraud'].values).long().to(device)
         outputs = net(X_test)
         loss = criterion(outputs, y_test).item()
         probs = F.softmax(outputs, dim=1)[:, 1].cpu().numpy()   # Probability for the positive class

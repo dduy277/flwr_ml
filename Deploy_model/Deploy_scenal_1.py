@@ -100,13 +100,13 @@ recall = round(classification.get('Fraud', {}).get('recall'), 2)
 f1_score = round(classification.get('Fraud', {}).get('f1-score'), 2)
 
 # Log metric, params
-mlflow.log_metric("precision", precision, step=server_round)
-mlflow.log_metric("recall", recall, step=server_round)
-mlflow.log_metric("f1-score", f1_score, step=server_round)
-mlflow.log_metric("ROC_AUC", ROC_AUC, step=server_round)
-mlflow.log_metric("AUC", AUC, step=server_round)
-mlflow.log_metric("Loss", loss, step=server_round)
-mlflow.log_params(params)
+mlflow.log_metric("precision", precision)
+mlflow.log_metric("recall", recall)
+mlflow.log_metric("f1-score", f1_score)
+mlflow.log_metric("ROC_AUC", ROC_AUC)
+mlflow.log_metric("AUC", AUC)
+mlflow.log_metric("Loss", loss)
+
 
 print(classification)
 print("ROC_AUC:", ROC_AUC)
