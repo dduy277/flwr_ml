@@ -15,18 +15,18 @@ import torch
 import logging
 
 
-# """MlFlow tracking"""
-# # Set our tracking server uri for logging
-# mlflow.set_tracking_uri(uri="http://localhost:5000")
+"""MlFlow tracking"""
+# Set our tracking server uri for logging
+mlflow.set_tracking_uri(uri="http://localhost:5000")
 
-# # Set log level
-# # # (MLflow can't verifile input data, so turm off the debug for now)
-# logger = logging.getLogger("mlflow")
-# logger.setLevel(logging.NOTSET)
+# Set log level
+# # (MLflow can't verifile input data, so turm off the debug for now)
+logger = logging.getLogger("mlflow")
+logger.setLevel(logging.NOTSET)
 
-# # Create / start a new MLflow Experiment
-# mlflow.set_experiment("MLflow rnn df1")
-# mlflow.start_run(run_name = "Gobal_flwr-torch-rnn", log_system_metrics=True)
+# Create / start a new MLflow Experiment
+mlflow.set_experiment("MLflow rnn df1")
+mlflow.start_run(run_name = "Gobal_flwr-torch-rnn", log_system_metrics=True)
 
 
 ## Hyper-parameters 
@@ -73,29 +73,29 @@ def avg_metrics(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         precision.append(round(precision_temp, 2))
         recall.append(round(recall_temp, 2))
         f1_score.append(round(f1_score_temp, 2))
-        # # Log client metric
-        # mlflow.start_run(run_name = "Client_flwr-torch-rnn", nested=True)
-        # mlflow.log_metric("precision", precision_temp)
-        # mlflow.log_metric("recall", recall_temp)
-        # mlflow.log_metric("f1-score", f1_score_temp)
-        # mlflow.log_metric("ROC_AUC", ROC_AUC_temp)
-        # mlflow.log_metric("AUC", AUC_temp)
-        # mlflow.log_metric("Loss", loss_temp)
-        # mlflow.end_run()    # End MLflow logging
+        # Log client metric
+        mlflow.start_run(run_name = "Client_flwr-torch-rnn", nested=True)
+        mlflow.log_metric("precision", precision_temp)
+        mlflow.log_metric("recall", recall_temp)
+        mlflow.log_metric("f1-score", f1_score_temp)
+        mlflow.log_metric("ROC_AUC", ROC_AUC_temp)
+        mlflow.log_metric("AUC", AUC_temp)
+        mlflow.log_metric("Loss", loss_temp)
+        mlflow.end_run()    # End MLflow logging
 
     # average of metrics
     avg_precision = round(sum(precision) / len(precision), 2)
     avg_recall = round(sum(recall) / len(recall), 2)
     avg_f1_score = round(sum(f1_score) / len(f1_score), 2)
-    # # Log client avg metric
-    # mlflow.start_run(run_name = "Client_flwr-torch-rnn_avg", nested=True)
-    # mlflow.log_metric("precision", avg_precision)
-    # mlflow.log_metric("recall", avg_recall)
-    # mlflow.log_metric("f1-score", avg_f1_score)
-    # mlflow.log_metric("ROC_AUC", avg_ROC_AUC)
-    # mlflow.log_metric("AUC", avg_AUC)
-    # mlflow.log_metric("Loss", avg_loss)
-    # mlflow.end_run()    # End MLflow logging
+    # Log client avg metric
+    mlflow.start_run(run_name = "Client_flwr-torch-rnn_avg", nested=True)
+    mlflow.log_metric("precision", avg_precision)
+    mlflow.log_metric("recall", avg_recall)
+    mlflow.log_metric("f1-score", avg_f1_score)
+    mlflow.log_metric("ROC_AUC", avg_ROC_AUC)
+    mlflow.log_metric("AUC", avg_AUC)
+    mlflow.log_metric("Loss", avg_loss)
+    mlflow.end_run()    # End MLflow logging
 
     # np.float64 doesn't affect anything, it looks ugly though.
     return {"precision": precision, "recall": recall, "f1-score": f1_score, "ROC_AUC": ROC_AUC, "AUC": AUC, "loss": loss}
