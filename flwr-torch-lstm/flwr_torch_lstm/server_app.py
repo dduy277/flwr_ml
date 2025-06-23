@@ -26,7 +26,7 @@ logger = logging.getLogger("mlflow")
 logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow lstm 2")
+mlflow.set_experiment("MLflow lstm df2")
 mlflow.start_run(run_name = "Gobal_flwr-torch-lstm", log_system_metrics=True)
 
 
