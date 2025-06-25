@@ -27,7 +27,7 @@ clientapp = "flwr_torch_rnn.client_app:app"
 [tool.flwr.app.config]
 num-server-rounds = 10
 fraction-fit = 0.5
-local-epochs = 400
+local-epochs = 1800
 
 [tool.flwr.federations]
 default = "local-simulation"

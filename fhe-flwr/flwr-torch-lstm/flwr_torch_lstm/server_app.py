@@ -26,13 +26,13 @@ logger = logging.getLogger("mlflow")
 logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow lstm df1")
+mlflow.set_experiment("MLflow lstm df2")
 mlflow.start_run(run_name = "Gobal_flwr-fhe-torch-lstm", log_system_metrics=True)
 
 
 ## Hyper-parameters 
-input_size = 16 # dataset collumns
-hidden_size = 1
+input_size = 8 # dataset collumns
+hidden_size = 2
 num_layers = 3
 num_classes = 2 # num y class
 
@@ -107,9 +107,9 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
     """Return a callback that evaluates the global model"""
     def eval(server_round, parameters_ndarrays, config): # server_round == current round
         set_weights(g_model, parameters_ndarrays)
-        X_test_global = valloader.drop('Class', axis=1).values
-        y_test_global = valloader['Class'].values
-        input_example = valloader.drop('Class', axis=1)
+        X_test_global = valloader.drop('isFraud', axis=1).values
+        y_test_global = valloader['isFraud'].values
+        input_example = valloader.drop('isFraud', axis=1)
         # Eval
         loss, accuracy, X_preds, y_labels = test(g_model, valloader, device)
         precision, recall, thresholds = precision_recall_curve(y_labels, X_preds)
@@ -142,7 +142,7 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
             pytorch_model=g_model, 
             artifact_path="Global_model", 
             signature=signature, 
-            registered_model_name="Gobal_flwr-fhe-torch-lstm_df1", 
+            registered_model_name="Gobal_flwr-fhe-torch-lstm_df2", 
             input_example=input_example.iloc[[0]],
             )
             mlflow.end_run()    # End MLflow logging
@@ -169,12 +169,12 @@ def server_fn(context: Context):
     # Load model
     g_model = Net(input_size, hidden_size, num_layers, num_classes)
     # # Load global test set
-    valloader = pd.read_csv('CSV/df_test_1.csv')
+    valloader = pd.read_csv('CSV/df_test_2.csv')
     valloader.drop("Unnamed: 0", axis=1, inplace=True)
     valloader = valloader.astype('float32')
     # ".values" to fix "X has feature names, but LogisticRegression was fitted without feature names"
     # Split the on edge data: 80% train, 20% test
-    Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="Class") # for MLflow
+    Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="isFraud") # for MLflow
 
     # Define strategy
     strategy = FheFedAvg(

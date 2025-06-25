@@ -11,8 +11,8 @@ from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, classifi
 
 
 ## Hyper-parameters 
-input_size = 16 # dataset collumns
-hidden_size = 1
+input_size = 8 # dataset collumns
+hidden_size = 2
 num_layers = 3
 num_classes = 2 # num y class
 

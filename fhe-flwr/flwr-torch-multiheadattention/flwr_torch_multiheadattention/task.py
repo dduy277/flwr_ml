@@ -50,11 +50,17 @@ class Net(nn.Module):
     def __init__(self, input_dim, dim_model, num_classes, num_heads):
         super(Net, self).__init__()
         self.multihead_attention = MultiheadAttention(input_dim=input_dim, dim_model=dim_model, num_heads=num_heads)
+        self.layer_norm = nn.LayerNorm(dim_model)
+        self.dropout = nn.Dropout(0.1)
         self.fc = nn.Linear(dim_model, num_classes)
     def forward(self, x, mask=None):
         # Apply Multihead Attention
-        attn_output, _= self.multihead_attention(x, mask)  # [batch_size, seq_len, input_dim]
-        out = attn_output[:, -1, :]  # [batch_size, (remove), input_dim]
+        attn_output, _ = self.multihead_attention(x, mask)
+        # Add normalization and dropout for better training
+        attn_output = self.layer_norm(attn_output)
+        attn_output = self.dropout(attn_output)
+        # Use global average pooling instead of just last position, this considers all feature relationships learned by attention
+        out = torch.mean(attn_output, dim=1)  # [batch_size, dim_model]
         out = self.fc(out)
         return out
 
@@ -67,7 +73,7 @@ def load_data(partition_id: int, num_partitions: int):
     # partitioner = IidPartitioner(num_partitions=num_partitions)
     partitioner = DirichletPartitioner(
         num_partitions=num_partitions,
-        partition_by="Class",
+        partition_by="isFraud",
         alpha=2,
         min_partition_size=10,
         seed=42
@@ -76,7 +82,7 @@ def load_data(partition_id: int, num_partitions: int):
     dataset = partitioner.load_partition(partition_id=partition_id).to_pandas()
     dataset = dataset.astype('float32')
     # Split the data: 80% train, 20% test
-    trainloader, testloader = train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['Class'])
+    trainloader, testloader = train_test_split(dataset, test_size=0.2, random_state=42, stratify=dataset['isFraud'])
     return trainloader, testloader
 
 
@@ -87,11 +93,11 @@ def train(net, trainloader, epochs, device):
     optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
     net.train()
     running_loss = 0.0
+    # Extract features and labels
+    X_train = trainloader.drop('isFraud', axis=1).values
+    X_train = torch.from_numpy(np.expand_dims(X_train, axis=2)).to(device)
+    y_train = torch.from_numpy(trainloader['isFraud'].values).long().to(device)
     for epoch in range(epochs):
-        # Extract features and labels once per epoch
-        X_train = trainloader.drop('Class', axis=1).values
-        X_train = torch.from_numpy(np.expand_dims(X_train, axis=2)).to(device)
-        y_train = torch.from_numpy(trainloader['Class'].values).long().to(device)
 
         # Forward pass
         outputs = net(X_train)
@@ -117,9 +123,9 @@ def test(net, testloader, device):
     all_y_labels = []
     with torch.no_grad():
         # Extract features and labels once
-        X_test = testloader.drop('Class', axis=1).values
+        X_test = testloader.drop('isFraud', axis=1).values
         X_test = torch.from_numpy(np.expand_dims(X_test, axis=2)).to(device)
-        y_test = torch.from_numpy(testloader['Class'].values).long().to(device)
+        y_test = torch.from_numpy(testloader['isFraud'].values).long().to(device)
         outputs = net(X_test)
         loss = criterion(outputs, y_test).item()
         # Get probabilities for the positive class (class 1)
