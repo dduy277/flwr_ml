@@ -26,7 +26,7 @@ logger = logging.getLogger("mlflow")
 logger.setLevel(logging.NOTSET)
 
 # Create / start a new MLflow Experiment
-mlflow.set_experiment("MLflow MultiheadAttention df1")
+mlflow.set_experiment("MLflow MultiheadAttention df2")
 mlflow.start_run(run_name = "Gobal_flwr-fhe-torch-MultiheadAttention", log_system_metrics=True)
 
 
@@ -107,9 +107,9 @@ def get_eval_func(valloader, g_model, num_rounds, params, Test_ds):
     """Return a callback that evaluates the global model"""
     def eval(server_round, parameters_ndarrays, config): # server_round == current round
         set_weights(g_model, parameters_ndarrays)
-        X_test_global = valloader.drop('Class', axis=1).values
-        y_test_global = valloader['Class'].values
-        input_example = valloader.drop('Class', axis=1)
+        X_test_global = valloader.drop('isFraud', axis=1).values
+        y_test_global = valloader['isFraud'].values
+        input_example = valloader.drop('isFraud', axis=1)
         # Eval
         loss, accuracy, X_preds, y_labels= test(g_model, valloader, device)
         # Precision-Recall curve and ROC-AUC score
@@ -171,12 +171,12 @@ def server_fn(context: Context):
     # Load model
     g_model = Net(input_dim, dim_model, num_classes, num_heads)
     # Load global test set
-    valloader = pd.read_csv('CSV/df_test_1.csv')
+    valloader = pd.read_csv('CSV/df_test_2.csv')
     valloader.drop("Unnamed: 0", axis=1, inplace=True)
     valloader = valloader.astype('float32')
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names
     # Split the on edge data: 80% train, 20% test
-    Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="Class") # for MLflow
+    Test_ds: PandasDataset = mlflow.data.from_pandas(valloader, targets="isFraud") # for MLflow
 
 
     # Define strategy
