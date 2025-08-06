@@ -37,7 +37,7 @@ num_layers = 3
 num_classes = 2 # num y class
 
 
-# Get device (need to be global ?)
+# Get device (need to be global ?)  
 if torch.xpu.is_available():    # for Intel GPU
     device = torch.device("xpu:0")
 else:
