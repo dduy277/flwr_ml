@@ -18,7 +18,7 @@ sys.path.insert(3, "flwr-torch-multiheadattention")
 
 mlflow.set_tracking_uri("http://localhost:5000")
 mlflow.set_experiment("Deploy rnn df1")
-mlflow.start_run(run_name = "Deploy_scenal_2_fhe-rnn", log_system_metrics=True)
+mlflow.start_run(run_name = "Deploy_scenal_2&3_fhe-rnn", log_system_metrics=True)
 
 def load_model_from_mlflow(model_name=None, model_version=None, run_id=None):
     
@@ -215,9 +215,9 @@ print("recall_1:", recall)
 print("f1_score_1:", f1_score)
 
 # Log metric, params
-mlflow.log_metric("time_full", time_full)
-mlflow.log_metric("time_50", time_50)
-mlflow.log_metric("time_10", time_10)
-mlflow.log_metric("time_1", time_1)
-mlflow.log_metric("1_val_class", df_1_val['Class'])
-mlflow.log_metric("1_val-predicted-class ", y_pred)
+# mlflow.log_metric("time_full", time_full)
+# mlflow.log_metric("time_50", time_50)
+# mlflow.log_metric("time_10", time_10)
+# mlflow.log_metric("time_1", time_1)
+# mlflow.log_metric("1_val_class", df_1_val['Class'])
+# mlflow.log_metric("1_val-predicted-class ", y_pred)

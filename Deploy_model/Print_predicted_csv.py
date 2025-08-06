@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import pandas as pd
-from sklearn.metrics import classification_report
+from sklearn.metrics import auc, roc_auc_score, precision_recall_curve, classification_report
 import sys
 sys.path.insert(0, "flwr-torch-rnn")
 sys.path.insert(1, "flwr-torch-gru")
@@ -17,6 +17,7 @@ sys.path.insert(3, "flwr-torch-multiheadattention")
 mlflow.set_tracking_uri("http://localhost:5000")
 
 def load_model_from_mlflow(model_name=None, model_version=None, run_id=None):
+    
     # Load from model registry
     model_uri = f"models:/{model_name}/{model_version}"
     loaded_model = mlflow.pytorch.load_model(model_uri)
@@ -95,11 +96,11 @@ loss, accuracy, X_preds, y_labels = test_model(model, X_test, y_test, device, mo
 # Convert probabilities to binary class predictions
 y_pred = [1 if p >= 0.5 else 0 for p in X_preds]
 
-# Create new CSV with predictions only
-df_results = pd.DataFrame({'predicted': y_pred})
+# Create new CSV with predictions
+df_results = df_test.copy()
+df_results['predicted'] = y_pred
 output_filename = f"predictions_{model_name}.csv"
 df_results.to_csv(output_filename, index=False)
-print(f"Number of predicted fraud: {sum(y_pred)}")
 
 classification = classification_report(y_test, y_pred, target_names=['Not Fraud', 'Fraud'], output_dict=True)
 precision = round(classification.get('Fraud', {}).get('precision'), 2)
