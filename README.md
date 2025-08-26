@@ -2,7 +2,7 @@
 
 ## Unzip the CSV file
 
-The default csv file is df_3
+The default csv file is df_2
 
 ## Install dependencies and project
 
@@ -32,5 +32,3 @@ To run with MLflow, start up the local MLflow server
 ```bash
 mlflow server --host 127.0.0.1 --port 5000
 ```
-
-Uncomment (#) MLflow in the code
