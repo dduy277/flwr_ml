@@ -1,6 +1,9 @@
 # Introduction
+The project aim to develop several credit card fraud detection models using Federated Learning with Homomorphic Encryption to determine the viability of collaborative machine training between multiple banks without exposing their clients private data, even to third-party servers.
+This project include 5 models: Logistic Regression, GRU, RNN, LSTM and Multihead Attention.
 
-# Instruction 
+# Instruction
+## Prerequisite
 Download all the files [here](https://github.com/dduy277/flwr_ml/archive/refs/heads/main.zip) and unzip it.
 
 You need to install Python, download the latest version [here](https://www.python.org/downloads/).
@@ -12,10 +15,10 @@ Unzip all of the .csv files inside the CSV folder
 
 The default CSV file that the models use is df_2 (data frame 2).
 
-## Chose a model
-There are 5 models that you can run: Logistic Regression, GRU, RNN, LSTM, Multihead Attention.
 
-Each one is in a folder that starts with 'flwr-' (ex:`flwr-sklearn-LogisticRegression`).
+
+## Chose a model
+There are 5 models that you can run, each one is in a folder that starts with 'flwr-' (ex:`flwr-sklearn-LogisticRegression`).
 
 Choose a model and open a cmd (Command Prompt) window in that model directory.
 
