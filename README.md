@@ -4,7 +4,7 @@ This project include 5 models: Logistic Regression, GRU, RNN, LSTM and Multihead
 
 # Instruction
 ## Prerequisite
-Download all the files [here](https://github.com/dduy277/flwr_ml/archive/refs/heads/main.zip) and unzip it.
+Download all the files [here](https://github.com/dduy277/flwr_ml/archive/refs/heads/Split_models_base_on_dataset.zip) and unzip it.
 
 You need to install Python, download the latest version [here](https://www.python.org/downloads/).
 
