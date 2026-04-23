@@ -8,7 +8,7 @@ Download all the files [here](https://github.com/dduy277/flwr_ml/archive/refs/he
 
 You need to install Python, download the latest version [here](https://www.python.org/downloads/).
 
-You also need to create a python environment with python version `3.11.12` using the [default way](https://python.land/virtual-environments/virtualenv) but I recommend using [pyenv](https://github.com/pyenv/pyenv) for Linux or [pyenv-win](https://github.com/pyenv-win/pyenv-win) for Window.
+You also need to create a python environment (pyenv) with python version `3.11.12` using the [default way](https://python.land/virtual-environments/virtualenv) or using [pyenv](https://github.com/pyenv/pyenv) (recommend) for Linux or [pyenv-win](https://github.com/pyenv-win/pyenv-win) for Window..
 
 ## Unzip the CSV file
 Unzip all of the .csv files inside the CSV folder
