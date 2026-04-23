@@ -1,5 +1,9 @@
 #A Flower / PyTorch app
 
+# Instruction 
+You need to install [Python](https://www.python.org/downloads/)
+
+You also need to create a python enviroment using the [default way](https://python.land/virtual-environments/virtualenv) but I recommend using [pyenv](https://github.com/pyenv/pyenv) or [pyenv-win](https://github.com/pyenv-win/pyenv-win) for Window.
 ## Unzip the CSV file
 
 The default csv file is df_2
