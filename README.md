@@ -1,23 +1,35 @@
-#A Flower / PyTorch app
+# Introduction
 
 # Instruction 
-You need to install [Python](https://www.python.org/downloads/)
+Download all the files [here](https://github.com/dduy277/flwr_ml/archive/refs/heads/main.zip) and unzip it.
 
-You also need to create a python enviroment using the [default way](https://python.land/virtual-environments/virtualenv) but I recommend using [pyenv](https://github.com/pyenv/pyenv) or [pyenv-win](https://github.com/pyenv-win/pyenv-win) for Window.
+You need to install Python, download the latest version [here](https://www.python.org/downloads/).
+
+You also need to create a python environment with python version `3.11.12` using the [default way](https://python.land/virtual-environments/virtualenv) but I recommend using [pyenv](https://github.com/pyenv/pyenv) for Linux or [pyenv-win](https://github.com/pyenv-win/pyenv-win) for Window.
+
 ## Unzip the CSV file
+Unzip all of the .csv files inside the CSV folder
 
-The default csv file is df_2
+The default CSV file that the models use is df_2 (data frame 2).
+
+## Chose a model
+There are 5 models that you can run: Logistic Regression, GRU, RNN, LSTM, Multihead Attention.
+
+Each one is in a folder that starts with 'flwr-' (ex:`flwr-sklearn-LogisticRegression`).
+
+Choose a model and open a cmd (Command Prompt) window in that model directory.
 
 ## Install dependencies and project
+Actiave the pyenv (python environment) that you installed.
 
-In the project directory (ex:`flwr-sklearn-LogisticRegression`), use `pip install -e .` to install dependencies
+In the model directory (ex:`flwr-sklearn-LogisticRegression`), use `pip install -e .` to install all dependencies.
 
 ```bash
 pip install -e .
 ```
 
 ## Run with the Simulation Engine
-
+  
 In the project directory (ex:`flwr-sklearn-LogisticRegression`), use `flwr run` to run a local simulation:
 
 ```bash
