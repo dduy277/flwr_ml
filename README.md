@@ -25,7 +25,7 @@ There are two models: df_1, df_2. Each is in its own folder (ex: `Dataset_1(df_1
 
 Unzip all of the zip files inside the CSV fodler.
 
-There are 5 models that you can run for each dataset, each one is in a folder that starts with 'flwr-torch' (ex:`flwr-torch-lstm`).
+There are 4 ml models that you can run for each dataset, each one is in a folder that starts with 'flwr-torch' (ex:`flwr-torch-lstm`), and those same models running with Homomorphic encryption inside `fhe-flwr` folder.
 
 Choose a model and open a terminal window in that model directory.
 
