@@ -72,9 +72,33 @@ You can change the model training parameter such as: epochs, training round,... 
 
 You can also change the Homomorphic encryption parameter in `fhe-flwr/flwr-torch-<model>/flwr_torch_<model>/Crypto/fhe_crypto.py` of each model.
 
+## Deploying trained model
+After training a model, it will apprear in MLflow interface. (Access with a web browser at http://127.0.0.1:5000)
+
+Open a new terminal in the Dataset folder (ex:`Dataset_1(df_1)-models`) in pyenv and input `Deploy_model/Deploy_scenal_<test number you want to run>.py` from 1 - 3 to use the model in a scenario:
+
+Scenario 1: Evaluate the models metric when detecting fraud with Precision, Recall, F1-score.
+
+Scenario 2: Evaluate the models response time when detecting fraud.
+
+Scenario 3: Measure both performance and system resources when receiving waves of detection requests, each one lasting 5 seconds.
+
+```bash
+python Deploy_model/Deploy_scenal_2.py
+```
+
+When `Input model name: ` appear , input a model name from MLflow (located in MLflow `Models` tab).
+
+```bash
+Gobal_flwr-fhe-torch-rnn_df1
+```
+
 ## Other
 ### GPU
 The models will use the CPU instead of the GPU due to Ray not supporting Intel Arc GPU at the time. You can use NVindia GPU by adding `options.backend.client-resources.num-gpus = 0.5` in `pyproject.toml`.
 
 ### Other message
 The message: `UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples.` in the few starting round is a normal process due to the model basically guessing without any or little training.
+
+### Muti-head attention error
+Federated Learning with Homomorphic Encryption using Muti-head Attention with df_2 will alway mesure 0 in all metric, further research is needed to understand the performance degradation.
