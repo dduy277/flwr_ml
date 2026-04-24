@@ -15,6 +15,10 @@ You need to install Python, download the latest version [here](https://www.pytho
 
 You also need to create a python environment (pyenv) with python version `3.11.12` using the [default way](https://python.land/virtual-environments/virtualenv) or using [pyenv](https://github.com/pyenv/pyenv) (recommend) for Linux or [pyenv-win](https://github.com/pyenv-win/pyenv-win) for Window..
 
+Install the necessary files in “requirements.txt” using the following command insize the newly created python environment.
+```bash
+pip install -r /path/to/requirements.txt
+```
 
 ## Chose a dataset and model to run
 There are two models: df_1, df_2. Each is in its own folder (ex: `Dataset_1(df_1)-models`) and came with its own models and model parameters. You can choose either of them, but df_1 is much smaller and trains faster than df_2.
