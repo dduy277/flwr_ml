@@ -101,4 +101,4 @@ The models will use the CPU instead of the GPU due to Ray not supporting Intel A
 The message: `UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples.` in the few starting round is a normal process due to the model basically guessing without any or little training.
 
 ### Muti-head attention error
-Federated Learning with Homomorphic Encryption using Muti-head Attention with df_2 will alway mesure 0 in all metric, further research is needed to understand the performance degradation.
+Federated Learning with Homomorphic Encryption using Multi-head Attention with df_2 will always measure 0 in all metrics, further research is needed to understand the performance degradation.
