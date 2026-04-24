@@ -38,7 +38,7 @@ pip install -e .
 ```
 
 ## Run with only Federated learning
-In the model directory (ex:`flwr-torch-lstm`), input this command in the terminal to activate `MLflow`, a web interface to monitor and save models.
+In the model directory you want to run (ex:`flwr-torch-lstm`), input this command in the terminal to activate `MLflow`, a web interface to monitor and save models.
 ```bash
 mlflow server --host 127.0.0.1 --port 5000
 ```
@@ -54,8 +54,30 @@ If outside of the model directory, use `flwr run < path to project directory >` 
 flwr run flwr-torch-lstm
 ```
 
+## Run with Federated learning and Homomorphic encryption
+*All 4 of the models that used Federated learning with Homomorphic encryption is located in `fhe-flwr`.
+*These models will run much slower than their Federated learning only counterpart.
+
+In the dataset directory (ex:`Dataset_1(df_1)-models`), input this command in the terminal to activate `MLflow`, a web interface to monitor and save models.
+```bash
+mlflow server --host 127.0.0.1 --port 5000
+```
+Open a web browser and input http://127.0.0.1:5000 in the search bar to open the MLflow interface. Here you can view the model in training and are able to check the result of the finished model.
+
+Open a new terminal in the model you want to run directory (ex:`fhe-flwr/flwr-torch-lstm`) and use `flwr run .` to train the model.
+```bash
+flwr run .
+```
+
+If outside of the model directory, use `flwr run < path to project directory >` to run a local simulation, eg:
+```bash
+flwr run fhe-flwr/flwr-torch-lstm
+```
+
 ## Setting
 You can change the model training parameter such as: epochs, training round,... under `[tool.flwr.app.config]` in `pyproject.toml`.
+
+You can also change the Homomorphic encryption parameter in `fhe-flwr/flwr-torch-<model>/flwr_torch_<model>/Crypto/fhe_crypto.py` of each model.
 
 ## Other
 ### GPU
