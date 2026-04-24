@@ -1,7 +1,7 @@
 # Introduction
 The project aim to develop several credit card fraud detection models using Federated Learning with Homomorphic Encryption to determine the viability of collaborative machine training between multiple banks without exposing their clients private data, even to third-party servers.
 
-This project includes 4 models: GRU, RNN, LSTM and Multihead Attention. Each model has both Federated Learning and Federated Learning (outsize [fhe-flwr](https://github.com/dduy277/flwr_ml/tree/Split_models_base_on_dataset/Dataset_1(df_1)-models/fhe-flwr) folder) with Homomorphic Encryption (inside [fhe-flwr](https://github.com/dduy277/flwr_ml/tree/Split_models_base_on_dataset/Dataset_1(df_1)-models/fhe-flwr) folder) version.
+It includes 4 models: GRU, RNN, LSTM and Multihead Attention. Each model has both Federated Learning and Federated Learning (outsize [fhe-flwr](https://github.com/dduy277/flwr_ml/tree/Split_models_base_on_dataset/Dataset_1(df_1)-models/fhe-flwr) folder) with Homomorphic Encryption (inside [fhe-flwr](https://github.com/dduy277/flwr_ml/tree/Split_models_base_on_dataset/Dataset_1(df_1)-models/fhe-flwr) folder) version.
 
 Two datasets were preprocessed and used to compare different models locally in [Local_ml_models](https://github.com/dduy277/Local_ml_models).
 
@@ -108,3 +108,12 @@ Federated Learning with Homomorphic Encryption using Multi-head Attention with d
 
 ### Project architecture
 <img width="1276" height="1051" alt="Project architecture" src="https://github.com/user-attachments/assets/c6d67d92-0067-421f-90e5-814afdf0a6ee" />
+
+# Core library
+The machine learning and deep learning models were made using [Scikit-learn](https://scikit-learn.org/stable/index.html) and [Pytorch](https://github.com/pytorch/pytorch) respectively.
+
+The Federated Learning framework used in this project is [flower](https://github.com/flwrlabs/flower).
+
+The Homomorphic Encryption library that was used for encryption is [OpenFHE](https://openfhe.org/).
+
+The record, monitor of metrics and models was done using [MLflow](https://github.com/mlflow/mlflow).
