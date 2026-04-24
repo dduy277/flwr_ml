@@ -171,7 +171,7 @@ def server_fn(context: Context):
     # Load model
     g_model = Net(input_dim, dim_model, num_classes, num_heads)
     # Load global test set
-    valloader = pd.read_csv('CSV/df_test_2.csv')
+    valloader = pd.read_csv('../../CSV/df_test_2.csv')
     valloader.drop("Unnamed: 0", axis=1, inplace=True)
     valloader = valloader.astype('float32')
     # ".values" to fix: X has feature names, but LogisticRegression was fitted without feature names

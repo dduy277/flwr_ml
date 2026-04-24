@@ -49,11 +49,6 @@ Open a new terminal in the model directory and use `flwr run .` to train the mod
 flwr run .
 ```
 
-If outside of the model directory, use `flwr run < path to project directory >` to run a local simulation, eg:
-```bash
-flwr run flwr-torch-lstm
-```
-
 ## Run with Federated learning and Homomorphic encryption
 *All 4 of the models that used Federated learning with Homomorphic encryption is located in `fhe-flwr` folder.
 *These models will run much slower than their Federated learning only counterpart.
@@ -67,11 +62,6 @@ Open a web browser and input http://127.0.0.1:5000 in the search bar to open the
 Open a new terminal in the model you want to run directory (ex:`fhe-flwr/flwr-torch-lstm`) and use `flwr run .` to train the model.
 ```bash
 flwr run .
-```
-
-If outside of the model directory, use `flwr run < path to project directory >` to run a local simulation, eg:
-```bash
-flwr run fhe-flwr/flwr-torch-lstm
 ```
 
 ### Workarround
