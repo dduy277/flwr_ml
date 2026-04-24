@@ -13,7 +13,7 @@ Download all the files [here](https://github.com/dduy277/flwr_ml/archive/refs/he
 
 You need to install Python, download the latest version [here](https://www.python.org/downloads/).
 
-You also need to create a python environment (pyenv) with python version `3.11.12` using the [default way](https://python.land/virtual-environments/virtualenv) or using [pyenv](https://github.com/pyenv/pyenv) (recommend) for Linux or [pyenv-win](https://github.com/pyenv-win/pyenv-win) for Window..
+You also need to create a python environment (pyenv) with python version `3.12.8` using the [default way](https://python.land/virtual-environments/virtualenv) or using [pyenv](https://github.com/pyenv/pyenv) (recommend) for Linux or [pyenv-win](https://github.com/pyenv-win/pyenv-win) for Window..
 
 Install the necessary files in “requirements.txt” using the following command insize the newly created python environment.
 ```bash
@@ -32,7 +32,7 @@ Choose a model and open a terminal window in that model directory.
 ## Install dependencies for the project
 Actiave the pyenv (python environment) that you installed.
 
-In the model directory (ex:`flwr-torch-lstm`), use `pip install -e .` to install all dependencies.
+In the model directory (ex:`flwr-torch-lstm`), use `pip install -e .` to install all dependencies. You NEED to do this for the first time for each model, both Federated learning only and Federated learning with Homomorphic encryption models.
 ```bash
 pip install -e .
 ```
@@ -55,7 +55,7 @@ flwr run flwr-torch-lstm
 ```
 
 ## Run with Federated learning and Homomorphic encryption
-*All 4 of the models that used Federated learning with Homomorphic encryption is located in `fhe-flwr`.
+*All 4 of the models that used Federated learning with Homomorphic encryption is located in `fhe-flwr` folder.
 *These models will run much slower than their Federated learning only counterpart.
 
 In the dataset directory (ex:`Dataset_1(df_1)-models`), input this command in the terminal to activate `MLflow`, a web interface to monitor and save models.
