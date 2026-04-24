@@ -74,6 +74,9 @@ If outside of the model directory, use `flwr run < path to project directory >` 
 flwr run fhe-flwr/flwr-torch-lstm
 ```
 
+### Workarround
+If you get `ValueError: Cannot load file containing pickled data when allow_pickle=False` error, find `parameter.py` usually in `/home/<user>/.pyenv/versions/3.12.8/envs/<pyenv_name>/lib/python3.12/site-packages/flwr/common/parameter.py` and change `allow_pickle` in `ndarray_deserialized = np.load(bytes_io, allow_pickle=False)` to `allow_pickle=True`.
+
 ## Setting
 You can change the model training parameter such as: epochs, training round,... under `[tool.flwr.app.config]` in `pyproject.toml`.
 
