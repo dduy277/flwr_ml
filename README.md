@@ -15,43 +15,37 @@ You need to install Python, download the latest version [here](https://www.pytho
 
 You also need to create a python environment (pyenv) with python version `3.11.12` using the [default way](https://python.land/virtual-environments/virtualenv) or using [pyenv](https://github.com/pyenv/pyenv) (recommend) for Linux or [pyenv-win](https://github.com/pyenv-win/pyenv-win) for Window..
 
-### Unzip the CSV file
-Unzip all of the .csv files inside the CSV folder
 
-The default CSV file that the models use is df_2 (data frame 2).
+## Chose a dataset and model to run
+There are two models: df_1, df_2. Each is in its own folder (ex: `Dataset_1(df_1)-models`) and came with its own models and model parameters.
 
+Unzip all of the zip files inside the CSV fodler.
 
-## Chose a model
-There are 5 models that you can run, each one is in a folder that starts with 'flwr-' (ex:`flwr-sklearn-LogisticRegression`).
+There are 5 models that you can run for each dataset, each one is in a folder that starts with 'flwr-torch' (ex:`flwr-torch-lstm`).
 
-Choose a model and open a cmd (Command Prompt) window in that model directory.
+Choose a model and open a terminal window in that model directory.
 
-## Install dependencies and project
+## Install dependencies for the project
 Actiave the pyenv (python environment) that you installed.
 
-In the model directory (ex:`flwr-sklearn-LogisticRegression`), use `pip install -e .` to install all dependencies.
-
+In the model directory (ex:`flwr-torch-lstm`), use `pip install -e .` to install all dependencies.
 ```bash
 pip install -e .
 ```
 
-## Run with the Simulation Engine
-  
-In the project directory (ex:`flwr-sklearn-LogisticRegression`), use `flwr run` to run a local simulation:
+## Run with only Federated learning
+In the model directory (ex:`flwr-torch-lstm`), input this command in the terminal to activate `MLflow`, a web interface to monitor and save models.
+```bash
+mlflow server --host 127.0.0.1 --port 5000
+```
+Open a web browser and input http://127.0.0.1:5000 in the search bar to open the MLflow interface. Here you can view the model in training and are able to check the result of the finished model.
 
+Open a new terminal in the model directory and use `flwr run .` to train the model.
 ```bash
 flwr run .
 ```
 
-If outside of the project directory, use `flwr run < path to project directory >` to run a local simulation:
-
+If outside of the model directory, use `flwr run < path to project directory >` to run a local simulation, eg:
 ```bash
-flwr run flwr-sklearn-LogisticRegression
-```
-## MLflow
-
-To run with MLflow, start up the local MLflow server
-
-```bash
-mlflow server --host 127.0.0.1 --port 5000
+flwr run flwr-torch-lstm
 ```
