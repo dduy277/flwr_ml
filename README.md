@@ -102,3 +102,9 @@ The message: `UndefinedMetricWarning: Precision is ill-defined and being set to 
 
 ### Muti-head attention error
 Federated Learning with Homomorphic Encryption using Multi-head Attention with df_2 will always measure 0 in all metrics, further research is needed to understand the performance degradation.
+
+### Models_performance
+<img width="906" height="1257" alt="Models_performance" src="https://github.com/user-attachments/assets/ea511523-dfb9-4012-a898-43d2d040ec61" />
+
+### Project architecture
+<img width="1276" height="1051" alt="Project architecture" src="https://github.com/user-attachments/assets/c6d67d92-0067-421f-90e5-814afdf0a6ee" />
