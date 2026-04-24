@@ -17,7 +17,7 @@ You also need to create a python environment (pyenv) with python version `3.11.1
 
 
 ## Chose a dataset and model to run
-There are two models: df_1, df_2. Each is in its own folder (ex: `Dataset_1(df_1)-models`) and came with its own models and model parameters.
+There are two models: df_1, df_2. Each is in its own folder (ex: `Dataset_1(df_1)-models`) and came with its own models and model parameters. You can choose either of them, but df_1 is much smaller and trains faster than df_2.
 
 Unzip all of the zip files inside the CSV fodler.
 
