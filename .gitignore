@@ -33,3 +33,6 @@ CSV/df_train_1.csv
 CSV/df_train_2.csv
 CSV/df1_SMOTE.7z
 CSV/df2_SMOTE.7z
+Dataset_1(df_1)-models/CSV/df_test_1.csv
+.gitignore
+Dataset_1(df_1)-models/CSV/df_train_1.csv

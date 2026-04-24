@@ -53,3 +53,13 @@ If outside of the model directory, use `flwr run < path to project directory >` 
 ```bash
 flwr run flwr-torch-lstm
 ```
+
+## Setting
+You can change the model training parameter such as: epochs, training round,... under `[tool.flwr.app.config]` in `pyproject.toml`.
+
+## Other
+### GPU
+The models will use the CPU instead of the GPU due to Ray not supporting Intel Arc GPU at the time. You can use NVindia GPU by adding `options.backend.client-resources.num-gpus = 0.5` in `pyproject.toml`.
+
+### Other message
+The message: `UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 in labels with no predicted samples.` in the few starting round is a normal process due to the model basically guessing without any or little training.
